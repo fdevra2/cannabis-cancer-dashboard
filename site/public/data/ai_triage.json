@@ -1,0 +1,421 @@
+{
+  "meta": {
+    "generated_by": "analysis/R pipeline (see docs/methods.md)",
+    "query": "(cannabis[tiab] OR marijuana[tiab] OR marihuana[tiab] OR \"Cannabis\"[Mesh] OR \"Marijuana Smoking\"[Mesh] OR \"Marijuana Use\"[Mesh]) AND (cancer[tiab] OR neoplasm*[tiab] OR carcinoma*[tiab] OR tumor*[tiab] OR tumour*[tiab] OR malignan*[tiab] OR \"Neoplasms\"[Mesh]) AND (risk[tiab] OR incidence[tiab] OR association[tiab] OR associated[tiab] OR odds[tiab] OR hazard[tiab] OR epidemiolog*[tiab])",
+    "retrieved_utc": "2026-11-25T22:40:09Z",
+    "n_records": 1115,
+    "n_with_abstract": 1090,
+    "tool": "cannabis-cancer-dashboard",
+    "email_supplied": false,
+    "design_rules": [
+      {
+        "label": "Systematic review / meta-analysis",
+        "publication_types": "Meta-Analysis|Systematic Review",
+        "keywords": "meta-analys|systematic review|pooled analysis"
+      },
+      {
+        "label": "Randomized / clinical trial",
+        "publication_types": "Randomized Controlled Trial|Clinical Trial",
+        "keywords": "randomi[sz]ed|placebo-controlled|clinical trial"
+      },
+      {
+        "label": "Preclinical (cell/animal)",
+        "publication_types": "$^",
+        "keywords": "\\bin vitro\\b|cell line|\\bmice\\b|\\bmouse\\b|\\brats?\\b|xenograft|murine|cultured cells"
+      },
+      {
+        "label": "Cohort",
+        "publication_types": "$^",
+        "keywords": "cohort|prospective|longitudinal|follow-up|followed up"
+      },
+      {
+        "label": "Case-control",
+        "publication_types": "$^",
+        "keywords": "case-control|case control|matched controls"
+      },
+      {
+        "label": "Cross-sectional / survey",
+        "publication_types": "$^",
+        "keywords": "cross-sectional|cross sectional|survey|nhanes|questionnaire"
+      },
+      {
+        "label": "Case report / series",
+        "publication_types": "Case Reports",
+        "keywords": "case report|we report a|we present a|case series"
+      },
+      {
+        "label": "Narrative review / commentary",
+        "publication_types": "Review|Editorial|Comment|Letter",
+        "keywords": "\\breview\\b|commentary|perspective"
+      }
+    ],
+    "site_rules": [
+      {
+        "label": "Lung",
+        "keywords": "lung|pulmonary|bronch"
+      },
+      {
+        "label": "Head & neck / oral",
+        "keywords": "head and neck|oral cancer|oral cavity|oropharyn|pharyn|laryn|mouth|tongue|hnscc|oral squamous"
+      },
+      {
+        "label": "Testicular",
+        "keywords": "testicul|testis|germ cell tumo|seminoma"
+      },
+      {
+        "label": "Breast",
+        "keywords": "breast"
+      },
+      {
+        "label": "Prostate",
+        "keywords": "prostat"
+      },
+      {
+        "label": "Colorectal",
+        "keywords": "colorectal|colon|rectal|bowel"
+      },
+      {
+        "label": "Brain / glioma",
+        "keywords": "glioma|glioblastoma|brain tumo|astrocytoma"
+      },
+      {
+        "label": "Bladder / urologic",
+        "keywords": "bladder|urothelial|kidney|renal cell"
+      },
+      {
+        "label": "Hematologic",
+        "keywords": "leuk[a]?emia|lymphoma|myeloma"
+      },
+      {
+        "label": "Other specific site",
+        "keywords": "melanoma|skin cancer|pancrea|hepatocellular|liver cancer|esophag|oesophag|gastric|cervical cancer|ovarian|thyroid|neuroblastoma|sarcoma"
+      }
+    ],
+    "validation": {
+      "template": "data/labels/validation_template.csv",
+      "n": 200,
+      "sampling": "Stratified by rule-predicted design (equal allocation, seed 20261125), abstracts only; template is blind to predictions"
+    }
+  },
+  "data": {
+    "counts_by_year": [
+      {
+        "year": 1970,
+        "n": 0
+      },
+      {
+        "year": 1971,
+        "n": 0
+      },
+      {
+        "year": 1972,
+        "n": 0
+      },
+      {
+        "year": 1973,
+        "n": 0
+      },
+      {
+        "year": 1974,
+        "n": 0
+      },
+      {
+        "year": 1975,
+        "n": 1
+      },
+      {
+        "year": 1976,
+        "n": 0
+      },
+      {
+        "year": 1977,
+        "n": 0
+      },
+      {
+        "year": 1978,
+        "n": 0
+      },
+      {
+        "year": 1979,
+        "n": 1
+      },
+      {
+        "year": 1980,
+        "n": 0
+      },
+      {
+        "year": 1981,
+        "n": 1
+      },
+      {
+        "year": 1982,
+        "n": 1
+      },
+      {
+        "year": 1983,
+        "n": 1
+      },
+      {
+        "year": 1984,
+        "n": 0
+      },
+      {
+        "year": 1985,
+        "n": 2
+      },
+      {
+        "year": 1986,
+        "n": 2
+      },
+      {
+        "year": 1987,
+        "n": 3
+      },
+      {
+        "year": 1988,
+        "n": 2
+      },
+      {
+        "year": 1989,
+        "n": 1
+      },
+      {
+        "year": 1990,
+        "n": 6
+      },
+      {
+        "year": 1991,
+        "n": 0
+      },
+      {
+        "year": 1992,
+        "n": 5
+      },
+      {
+        "year": 1993,
+        "n": 5
+      },
+      {
+        "year": 1994,
+        "n": 3
+      },
+      {
+        "year": 1995,
+        "n": 5
+      },
+      {
+        "year": 1996,
+        "n": 2
+      },
+      {
+        "year": 1997,
+        "n": 6
+      },
+      {
+        "year": 1998,
+        "n": 8
+      },
+      {
+        "year": 1999,
+        "n": 12
+      },
+      {
+        "year": 2000,
+        "n": 10
+      },
+      {
+        "year": 2001,
+        "n": 6
+      },
+      {
+        "year": 2002,
+        "n": 8
+      },
+      {
+        "year": 2003,
+        "n": 5
+      },
+      {
+        "year": 2004,
+        "n": 11
+      },
+      {
+        "year": 2005,
+        "n": 13
+      },
+      {
+        "year": 2006,
+        "n": 18
+      },
+      {
+        "year": 2007,
+        "n": 11
+      },
+      {
+        "year": 2008,
+        "n": 20
+      },
+      {
+        "year": 2009,
+        "n": 19
+      },
+      {
+        "year": 2010,
+        "n": 17
+      },
+      {
+        "year": 2011,
+        "n": 18
+      },
+      {
+        "year": 2012,
+        "n": 18
+      },
+      {
+        "year": 2013,
+        "n": 14
+      },
+      {
+        "year": 2014,
+        "n": 33
+      },
+      {
+        "year": 2015,
+        "n": 29
+      },
+      {
+        "year": 2016,
+        "n": 36
+      },
+      {
+        "year": 2017,
+        "n": 34
+      },
+      {
+        "year": 2018,
+        "n": 62
+      },
+      {
+        "year": 2019,
+        "n": 59
+      },
+      {
+        "year": 2020,
+        "n": 62
+      },
+      {
+        "year": 2021,
+        "n": 104
+      },
+      {
+        "year": 2022,
+        "n": 120
+      },
+      {
+        "year": 2023,
+        "n": 98
+      },
+      {
+        "year": 2024,
+        "n": 118
+      },
+      {
+        "year": 2025,
+        "n": 129
+      }
+    ],
+    "design_counts": [
+      {
+        "label": "Cohort",
+        "n": 197
+      },
+      {
+        "label": "Narrative review / commentary",
+        "n": 189
+      },
+      {
+        "label": "Cross-sectional / survey",
+        "n": 185
+      },
+      {
+        "label": "Other / unclear",
+        "n": 177
+      },
+      {
+        "label": "Systematic review / meta-analysis",
+        "n": 101
+      },
+      {
+        "label": "Preclinical (cell/animal)",
+        "n": 94
+      },
+      {
+        "label": "Randomized / clinical trial",
+        "n": 92
+      },
+      {
+        "label": "Case report / series",
+        "n": 47
+      },
+      {
+        "label": "Case-control",
+        "n": 33
+      }
+    ],
+    "site_counts": [
+      {
+        "label": "Cancer in general / unspecified",
+        "n": 597
+      },
+      {
+        "label": "Lung",
+        "n": 126
+      },
+      {
+        "label": "Multiple sites",
+        "n": 107
+      },
+      {
+        "label": "Head & neck / oral",
+        "n": 80
+      },
+      {
+        "label": "Other specific site",
+        "n": 48
+      },
+      {
+        "label": "Breast",
+        "n": 31
+      },
+      {
+        "label": "Colorectal",
+        "n": 31
+      },
+      {
+        "label": "Testicular",
+        "n": 24
+      },
+      {
+        "label": "Hematologic",
+        "n": 23
+      },
+      {
+        "label": "Brain / glioma",
+        "n": 21
+      },
+      {
+        "label": "Bladder / urologic",
+        "n": 18
+      },
+      {
+        "label": "Prostate",
+        "n": 9
+      }
+    ],
+    "benchmark": {
+      "status": "awaiting_human_labels",
+      "message": "Benchmark will appear once data/labels/validation_labels.csv (the completed template) exists."
+    },
+    "examples": []
+  }
+}

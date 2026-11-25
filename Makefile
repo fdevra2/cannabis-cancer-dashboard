@@ -4,7 +4,7 @@ NODE_BIN ?= $(HOME)/.local/opt/node/bin
 export PATH := $(NODE_BIN):$(PATH)
 R := Rscript
 
-.PHONY: all data harmonize analysis test site-install site-build dev preview clean-derived
+.PHONY: all data harmonize analysis test site-install site-build dev preview clean-derived llm-triage
 
 all: data harmonize analysis test site-build
 
@@ -23,6 +23,8 @@ analysis: harmonize   ## all estimates -> site/public/data/*.json
 	$(R) analysis/R/models.R
 	$(R) analysis/R/evidence_export.R
 	$(R) analysis/R/policy.R
+	$(R) analysis/R/ai_predict.R
+	$(R) analysis/R/ai_triage.R
 
 test:            ## R validation + unit tests
 	$(R) analysis/tests/run_tests.R
@@ -41,3 +43,7 @@ preview:
 
 clean-derived:
 	rm -rf data/derived
+
+llm-triage:      ## OPTIONAL, billed: classify the 200 validation abstracts with Claude (needs ANTHROPIC_API_KEY in .env)
+	$(R) analysis/R/ai_triage_llm.R
+	$(R) analysis/R/ai_triage.R

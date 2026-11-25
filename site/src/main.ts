@@ -1,7 +1,6 @@
 import "./styles.css";
 import { el } from "./lib/dom";
 import type { Tab } from "./tabs/registry";
-import { placeholder } from "./tabs/placeholder";
 import { renderNhanes } from "./tabs/nhanes";
 import { renderEvidence } from "./tabs/evidence";
 import { renderExposure } from "./tabs/exposure";
@@ -9,6 +8,7 @@ import { renderCausal } from "./tabs/causal";
 import { renderMethods } from "./tabs/methods";
 import { renderPolicy } from "./tabs/policy";
 import { renderOverview } from "./tabs/overview";
+import { renderAI } from "./tabs/ai";
 
 const TABS: Tab[] = [
   { id: "overview", label: "Overview", render: renderOverview },
@@ -16,9 +16,7 @@ const TABS: Tab[] = [
   { id: "nhanes", label: "NHANES Explorer", render: renderNhanes },
   { id: "exposure", label: "Measuring Exposure", render: renderExposure },
   { id: "causal", label: "Causal Reasoning", render: renderCausal },
-  { id: "ai", label: "AI in Health Research", render: (r) => placeholder(r, "AI in Health Research",
-      "Two demonstrations, both framed as prediction, not causation.",
-      ["Predictive model: AUROC, calibration, subgroup performance, SHAP", "AI-assisted literature triage benchmarked against human labels"]) },
+  { id: "ai", label: "AI in Health Research", render: renderAI },
   { id: "policy", label: "Policy Context", render: renderPolicy },
   { id: "methods", label: "Methods & Limitations", render: renderMethods },
 ];

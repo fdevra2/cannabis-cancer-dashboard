@@ -17,6 +17,8 @@ export function forestPlot(rows: ForestRow[], width: number, opts: {
   xLabel?: string; domain?: [number, number]; symbolBy?: (r: ForestRow) => string; height?: number; marginLeft?: number;
   /** On narrow screens: show only the first label line ("first") or both lines joined ("join"). */
   narrowLabel?: "first" | "join";
+  /** Reference line (default 1 = no association; e.g. 0.5 for AUROC). */
+  ref?: number;
 } = {}) {
   const narrow = width < 600;
   const lo = Math.min(...rows.map((r) => r.lcl), 0.5), hi = Math.max(...rows.map((r) => r.ucl), 2);
@@ -34,10 +36,10 @@ export function forestPlot(rows: ForestRow[], width: number, opts: {
     marginBottom: 40,
     style: plotStyle(),
     x: { type: "log", domain, label: opts.xLabel ?? "Estimate (log scale; 1 = no association)", labelAnchor: "center", grid: true,
-         ticks: [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].filter((t) => t >= domain[0] && t <= domain[1]), tickFormat: (d: number) => `${d}` },
+         ticks: (opts.ref === 0.5 ? [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] : [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50]).filter((t) => t >= domain[0] && t <= domain[1]), tickFormat: (d: number) => `${d}` },
     y: { domain: rows.map((r) => r.key), label: null, axis: null },
     marks: [
-      Plot.ruleX([1], { stroke: cssVar("--ink-3"), strokeWidth: 1 }),
+      Plot.ruleX([opts.ref ?? 1], { stroke: cssVar("--ink-3"), strokeWidth: 1 }),
       Plot.ruleY(rows, { y: "key", x1: (r: ForestRow) => clip(r.lcl), x2: (r: ForestRow) => clip(r.ucl),
         stroke: (r: ForestRow) => (r.emphasis === false ? muted : accent), strokeWidth: 2 }),
       Plot.dot(rows, { y: "key", x: (r: ForestRow) => clip(r.est), r: 5,

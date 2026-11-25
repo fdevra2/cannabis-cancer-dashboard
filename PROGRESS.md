@@ -172,3 +172,37 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 - **Overview card 2** says tobacco is "a major confounder", not "the biggest". In these models tobacco moves the OR more than any other block, but other confounders are unmeasured.
 - **CEI wording:** the 2026 *Drug Alcohol Depend* title says "Cannabis Exposure **Index**" but its abstract spells out "Cannabis Exposure **Inventory**". The site uses the title wording; please confirm the preferred name.
 - Methods are rendered from Markdown with `marked` 18.2.0 (trusted repo file; DOIs auto-linked).
+
+
+---
+
+## Phase E — AI demos (2026-11-25)
+
+### Built
+- **(a) Predictive model** (`analysis/R/ai_predict.R` → `ai_predict.json`):
+  - task: predict self-reported cancer history among NHANES adults 20–59, using age, sex, race/ethnicity, education, income-to-poverty ratio, insurance, smoking, alcohol, BMI, ever and past-30-day cannabis use;
+  - **temporal validation:** train 2005–2014, test 2015–2018; MEC weights used in fitting and in every metric;
+  - models: weighted logistic regression vs xgboost (rounds chosen by 5-fold CV with early stopping);
+  - metrics: weighted AUROC with PSU-cluster bootstrap CIs, decile calibration, calibration slope, Brier, subgroup AUROC (with bootstrap CIs) and calibration-in-the-large by sex/race/age, and TreeSHAP importance.
+- **(b) Literature triage** (`analysis/R/ai_triage.R` → `ai_triage.json`):
+  - retrieval: PubMed E-utilities (`tool=cannabis-cancer-dashboard`, email from `.env` if set, ≤3 req/s), 1115 records plus per-year counts 1970–2025;
+  - **transparent rule-based classifier** for design (9 labels) and cancer site (12 labels);
+  - **blind 200-abstract validation template** (`data/labels/validation_template.csv`, stratified by predicted design, seed 20261125) and `docs/labeling_guide.md`;
+  - Cohen's kappa + confusion matrices are computed automatically once `data/labels/validation_labels.csv` exists.
+- **Optional LLM classifier** (`analysis/R/ai_triage_llm.R`, `make llm-triage`): Claude `claude-opus-5-5` via raw HTTP (R has no official SDK), JSON-schema structured output limited to the guide's categories, low effort, server-side fallbacks (`fallbacks: "default"`), refusals recorded as missing. **Not run** (no API key; ~200 billed calls). Benchmarked against the same human labels if run.
+- **AI in Health Research tab:** both demos, with "prediction ≠ causation" framing, calibration, a subgroup fairness forest plot, a SHAP chart with a "why SHAP ≠ causal effect" panel, publication counts, rule tables, and an "awaiting human labels" benchmark panel (no simulated numbers).
+- Tests: `test-ai.R` (kappa vs hand calculation; weighted AUROC = pROC with unit weights; template is blind and has 200 rows; SHAP not NA); vitest E-value tests; data-contract test generalized.
+
+### Results (test set 2015–2018, n = 5,465, 223 cases)
+- Logistic regression AUROC 0.737 (0.71–0.76), calibration slope 0.86; xgboost AUROC 0.728 (0.70–0.76), slope 0.93. The complex model does not beat the simple one.
+- SHAP: age ≫ sex > race/ethnicity ≫ the rest; ever-use of cannabis ranks 9 of 11.
+
+### Judgment calls
+- Temporal rather than random split: it better reflects how a model would be used, and it avoids leakage within survey clusters.
+- AUROC CIs use a PSU-cluster bootstrap within strata (not design-based variance formulas). Subgroup AUROCs are shown only with ≥10 cases.
+- The triage validation sample is stratified by *predicted* design so rare designs are represented. This over-samples rare classes, so kappa describes performance on this sample, not the corpus mix.
+- 1,126 PubMed hits vs 1,115 parsed records: the 11 missing are non-`PubmedArticle` records (e.g. book chapters).
+
+### For you to do
+- Label `data/labels/validation_template.csv` following `docs/labeling_guide.md`, save it as `data/labels/validation_labels.csv`, then run `make analysis`.
+- Optional: put `NCBI_EMAIL` (and `ANTHROPIC_API_KEY` if you want the LLM comparison) in `.env`.

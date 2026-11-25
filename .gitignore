@@ -3,6 +3,7 @@ data/raw/xpt/
 data/raw/codebooks/
 data/raw/literature/
 data/raw/policy/
+data/raw/pubmed/
 data/derived/
 # Secrets
 .env

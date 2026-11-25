@@ -1,0 +1,536 @@
+{
+  "meta": {
+    "generated_by": "analysis/R pipeline (see docs/methods.md)",
+    "task": "Predict self-reported cancer history (MCQ220) among NHANES adults 20–59",
+    "features": {
+      "age": "Age",
+      "sex": "Sex",
+      "race": "Race/ethnicity",
+      "educ": "Education",
+      "pir_cat": "Income-to-poverty ratio",
+      "insured": "Health insurance",
+      "smk_status": "Cigarette smoking",
+      "alc_cat": "Alcohol use",
+      "bmi": "Body mass index",
+      "mj_ever": "Ever used cannabis",
+      "mj_past30": "Cannabis in past 30 days"
+    },
+    "validation": "Temporal: train 2005–2014, test 2015–2018. MEC weights (normalized) used in fitting and in every metric.",
+    "xgboost": {
+      "eta": 0.03,
+      "max_depth": 3,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "min_child_weight": 5,
+      "nrounds": 130,
+      "nrounds_selection": "5-fold CV with early stopping on training data"
+    },
+    "auroc_ci": "Cluster bootstrap over PSUs within strata (300 replicates), percentile 95% CI",
+    "caution": "Prediction is not causation: a feature can be highly predictive (e.g. age) or carry SHAP importance because it is correlated with true causes, measurement patterns or survival, not because changing it would change cancer risk."
+  },
+  "data": {
+    "performance": [
+      {
+        "model": "Logistic regression",
+        "auroc": 0.737452,
+        "auroc_lcl": 0.70867,
+        "auroc_ucl": 0.764069,
+        "brier": 0.0455273,
+        "cal_slope": 0.859619,
+        "cal_intercept": -0.0661207,
+        "mean_pred": 0.0523766,
+        "obs_rate": 0.0493493
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "auroc": 0.727782,
+        "auroc_lcl": 0.696804,
+        "auroc_ucl": 0.755673,
+        "brier": 0.0454304,
+        "cal_slope": 0.931548,
+        "cal_intercept": -0.0390418,
+        "mean_pred": 0.0511371,
+        "obs_rate": 0.0493493
+      }
+    ],
+    "calibration": [
+      {
+        "model": "Logistic regression",
+        "pred": 0.00476899,
+        "obs": 0.00876597,
+        "n": 547,
+        "_row": "[0.00123,0.00679]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.00859777,
+        "obs": 0.00962674,
+        "n": 546,
+        "_row": "(0.00679,0.0104]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0126123,
+        "obs": 0.0169729,
+        "n": 547,
+        "_row": "(0.0104,0.0147]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0171858,
+        "obs": 0.00644121,
+        "n": 546,
+        "_row": "(0.0147,0.0198]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0230842,
+        "obs": 0.0233921,
+        "n": 547,
+        "_row": "(0.0198,0.0263]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0299809,
+        "obs": 0.0252347,
+        "n": 546,
+        "_row": "(0.0263,0.0345]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0402387,
+        "obs": 0.048253,
+        "n": 546,
+        "_row": "(0.0345,0.0461]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0542816,
+        "obs": 0.0566335,
+        "n": 547,
+        "_row": "(0.0461,0.0646]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.0795479,
+        "obs": 0.0879614,
+        "n": 546,
+        "_row": "(0.0646,0.097]"
+      },
+      {
+        "model": "Logistic regression",
+        "pred": 0.147062,
+        "obs": 0.12078,
+        "n": 547,
+        "_row": "(0.097,0.326]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.00767234,
+        "obs": 0.00262797,
+        "n": 547,
+        "_row": "[0.00419,0.00963]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0117597,
+        "obs": 0.016084,
+        "n": 546,
+        "_row": "(0.00963,0.0142]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0162666,
+        "obs": 0.0180114,
+        "n": 547,
+        "_row": "(0.0142,0.0188]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0210403,
+        "obs": 0.0162301,
+        "n": 546,
+        "_row": "(0.0188,0.0233]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0256138,
+        "obs": 0.020948,
+        "n": 547,
+        "_row": "(0.0233,0.0282]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0316615,
+        "obs": 0.0394106,
+        "n": 546,
+        "_row": "(0.0282,0.036]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0421376,
+        "obs": 0.0346821,
+        "n": 546,
+        "_row": "(0.036,0.0496]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.056102,
+        "obs": 0.0682438,
+        "n": 547,
+        "_row": "(0.0496,0.0625]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.0736083,
+        "obs": 0.0883414,
+        "n": 546,
+        "_row": "(0.0625,0.0891]"
+      },
+      {
+        "model": "Gradient boosting (xgboost)",
+        "pred": 0.130572,
+        "obs": 0.111659,
+        "n": 547,
+        "_row": "(0.0891,0.224]"
+      }
+    ],
+    "subgroups": [
+      {
+        "dimension": "Sex",
+        "group": "Male",
+        "model": "Logistic regression",
+        "n": 2611,
+        "cases": 69,
+        "auroc": 0.726814,
+        "auroc_lcl": 0.674355,
+        "auroc_ucl": 0.780677,
+        "pred_rate": 0.0360548,
+        "obs_rate": 0.0356983,
+        "note": ""
+      },
+      {
+        "dimension": "Sex",
+        "group": "Male",
+        "model": "Gradient boosting (xgboost)",
+        "n": 2611,
+        "cases": 69,
+        "auroc": 0.725409,
+        "auroc_lcl": 0.680277,
+        "auroc_ucl": 0.773,
+        "pred_rate": 0.0383092,
+        "obs_rate": 0.0356983,
+        "note": ""
+      },
+      {
+        "dimension": "Sex",
+        "group": "Female",
+        "model": "Logistic regression",
+        "n": 2854,
+        "cases": 154,
+        "auroc": 0.72142,
+        "auroc_lcl": 0.691827,
+        "auroc_ucl": 0.751683,
+        "pred_rate": 0.0685084,
+        "obs_rate": 0.0628414,
+        "note": ""
+      },
+      {
+        "dimension": "Sex",
+        "group": "Female",
+        "model": "Gradient boosting (xgboost)",
+        "n": 2854,
+        "cases": 154,
+        "auroc": 0.711187,
+        "auroc_lcl": 0.668799,
+        "auroc_ucl": 0.743598,
+        "pred_rate": 0.0638157,
+        "obs_rate": 0.0628414,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Mexican American",
+        "model": "Logistic regression",
+        "n": 883,
+        "cases": 24,
+        "auroc": 0.762476,
+        "auroc_lcl": 0.712007,
+        "auroc_ucl": 0.813382,
+        "pred_rate": 0.0217613,
+        "obs_rate": 0.023406,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Mexican American",
+        "model": "Gradient boosting (xgboost)",
+        "n": 883,
+        "cases": 24,
+        "auroc": 0.781694,
+        "auroc_lcl": 0.723308,
+        "auroc_ucl": 0.835604,
+        "pred_rate": 0.0260569,
+        "obs_rate": 0.023406,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Other Hispanic",
+        "model": "Logistic regression",
+        "n": 561,
+        "cases": 21,
+        "auroc": 0.711469,
+        "auroc_lcl": 0.608414,
+        "auroc_ucl": 0.771037,
+        "pred_rate": 0.0315333,
+        "obs_rate": 0.0354599,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Other Hispanic",
+        "model": "Gradient boosting (xgboost)",
+        "n": 561,
+        "cases": 21,
+        "auroc": 0.746223,
+        "auroc_lcl": 0.657776,
+        "auroc_ucl": 0.803728,
+        "pred_rate": 0.028922,
+        "obs_rate": 0.0354599,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Non-Hispanic White",
+        "model": "Logistic regression",
+        "n": 1811,
+        "cases": 118,
+        "auroc": 0.705172,
+        "auroc_lcl": 0.666136,
+        "auroc_ucl": 0.745265,
+        "pred_rate": 0.0684543,
+        "obs_rate": 0.0633876,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Non-Hispanic White",
+        "model": "Gradient boosting (xgboost)",
+        "n": 1811,
+        "cases": 118,
+        "auroc": 0.687013,
+        "auroc_lcl": 0.648282,
+        "auroc_ucl": 0.731742,
+        "pred_rate": 0.0650293,
+        "obs_rate": 0.0633876,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Non-Hispanic Black",
+        "model": "Logistic regression",
+        "n": 1203,
+        "cases": 34,
+        "auroc": 0.782566,
+        "auroc_lcl": 0.728164,
+        "auroc_ucl": 0.830979,
+        "pred_rate": 0.0235998,
+        "obs_rate": 0.0262912,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Non-Hispanic Black",
+        "model": "Gradient boosting (xgboost)",
+        "n": 1203,
+        "cases": 34,
+        "auroc": 0.800848,
+        "auroc_lcl": 0.741244,
+        "auroc_ucl": 0.849301,
+        "pred_rate": 0.0296877,
+        "obs_rate": 0.0262912,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Other/Multiracial",
+        "model": "Logistic regression",
+        "n": 1007,
+        "cases": 26,
+        "auroc": 0.672353,
+        "auroc_lcl": 0.546024,
+        "auroc_ucl": 0.827674,
+        "pred_rate": 0.0311652,
+        "obs_rate": 0.024694,
+        "note": ""
+      },
+      {
+        "dimension": "Race/ethnicity",
+        "group": "Other/Multiracial",
+        "model": "Gradient boosting (xgboost)",
+        "n": 1007,
+        "cases": 26,
+        "auroc": 0.707403,
+        "auroc_lcl": 0.610462,
+        "auroc_ucl": 0.813005,
+        "pred_rate": 0.0303301,
+        "obs_rate": 0.024694,
+        "note": ""
+      },
+      {
+        "dimension": "Age group",
+        "group": "20–39",
+        "model": "Logistic regression",
+        "n": 2732,
+        "cases": 46,
+        "auroc": 0.744683,
+        "auroc_lcl": 0.671967,
+        "auroc_ucl": 0.817486,
+        "pred_rate": 0.0212342,
+        "obs_rate": 0.0245869,
+        "note": ""
+      },
+      {
+        "dimension": "Age group",
+        "group": "20–39",
+        "model": "Gradient boosting (xgboost)",
+        "n": 2732,
+        "cases": 46,
+        "auroc": 0.698621,
+        "auroc_lcl": 0.627787,
+        "auroc_ucl": 0.76883,
+        "pred_rate": 0.0230878,
+        "obs_rate": 0.0245869,
+        "note": ""
+      },
+      {
+        "dimension": "Age group",
+        "group": "40–49",
+        "model": "Logistic regression",
+        "n": 1346,
+        "cases": 60,
+        "auroc": 0.669619,
+        "auroc_lcl": 0.617942,
+        "auroc_ucl": 0.71775,
+        "pred_rate": 0.0564945,
+        "obs_rate": 0.0554404,
+        "note": ""
+      },
+      {
+        "dimension": "Age group",
+        "group": "40–49",
+        "model": "Gradient boosting (xgboost)",
+        "n": 1346,
+        "cases": 60,
+        "auroc": 0.652436,
+        "auroc_lcl": 0.592794,
+        "auroc_ucl": 0.70861,
+        "pred_rate": 0.0523048,
+        "obs_rate": 0.0554404,
+        "note": ""
+      },
+      {
+        "dimension": "Age group",
+        "group": "50–59",
+        "model": "Logistic regression",
+        "n": 1387,
+        "cases": 117,
+        "auroc": 0.623968,
+        "auroc_lcl": 0.581539,
+        "auroc_ucl": 0.662397,
+        "pred_rate": 0.108998,
+        "obs_rate": 0.0917148,
+        "note": ""
+      },
+      {
+        "dimension": "Age group",
+        "group": "50–59",
+        "model": "Gradient boosting (xgboost)",
+        "n": 1387,
+        "cases": 117,
+        "auroc": 0.640444,
+        "auroc_lcl": 0.59519,
+        "auroc_ucl": 0.679439,
+        "pred_rate": 0.104531,
+        "obs_rate": 0.0917148,
+        "note": ""
+      }
+    ],
+    "shap": [
+      {
+        "feature": "age",
+        "label": "Age",
+        "mean_abs_shap": 0.668189
+      },
+      {
+        "feature": "sex",
+        "label": "Sex",
+        "mean_abs_shap": 0.329747
+      },
+      {
+        "feature": "race",
+        "label": "Race/ethnicity",
+        "mean_abs_shap": 0.263316
+      },
+      {
+        "feature": "smk_status",
+        "label": "Cigarette smoking",
+        "mean_abs_shap": 0.0710555
+      },
+      {
+        "feature": "bmi",
+        "label": "Body mass index",
+        "mean_abs_shap": 0.0632013
+      },
+      {
+        "feature": "pir_cat",
+        "label": "Income-to-poverty ratio",
+        "mean_abs_shap": 0.0577271
+      },
+      {
+        "feature": "educ",
+        "label": "Education",
+        "mean_abs_shap": 0.0497439
+      },
+      {
+        "feature": "insured",
+        "label": "Health insurance",
+        "mean_abs_shap": 0.0441992
+      },
+      {
+        "feature": "mj_ever",
+        "label": "Ever used cannabis",
+        "mean_abs_shap": 0.0405377
+      },
+      {
+        "feature": "mj_past30",
+        "label": "Cannabis in past 30 days",
+        "mean_abs_shap": 0.00876192
+      },
+      {
+        "feature": "alc_cat",
+        "label": "Alcohol use",
+        "mean_abs_shap": 0.00596488
+      }
+    ],
+    "lr_mj": [
+      {
+        "term": "mj_ever",
+        "or": 1.1884
+      }
+    ],
+    "sizes": [
+      {
+        "split": "train (2005–2014)",
+        "n": 14741,
+        "cases": 600
+      },
+      {
+        "split": "test (2015–2018)",
+        "n": 5465,
+        "cases": 223
+      }
+    ]
+  }
+}
