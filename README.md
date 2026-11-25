@@ -16,6 +16,16 @@ make dev                          # local dev server
 
 `make all` downloads public NHANES files from CDC (checksums recorded in `data/raw/MANIFEST.csv`), harmonizes them, runs the design-based analyses, runs the validation tests, and builds the static site into `site/dist/`.
 
+## Checks that run
+
+- `make test`: R tests. These replicate NCHS Data Brief 360 and a *BMJ Open* NHANES paper exactly, check the design (full-sample design + `subset()`), compare harmonized counts with the CDC codebooks, confirm every evidence quote verbatim against its archived source, and test the models, the AI helpers and the policy data.
+- `cd site && npm test`: data contracts and E-value math.
+- `cd site && node scripts/a11y.mjs`: axe-core WCAG 2.1 AA audit of every tab (light and dark) plus a keyboard-reachability check. It needs the dev server running.
+
+## Human labels for the AI triage demo
+
+Label `data/labels/validation_template.csv` following `docs/labeling_guide.md`, save it as `data/labels/validation_labels.csv`, then run `make analysis`. Optional, and billed: `make llm-triage` with `ANTHROPIC_API_KEY` in `.env`.
+
 ## Layout
 
 | Path | What |
