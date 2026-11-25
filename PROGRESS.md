@@ -223,3 +223,5 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 
 ### Judgment calls
 - CI does not re-run the NHANES pipeline (~140 MB of downloads and R). It builds only the front end from committed outputs, and the local `make all` is the reproducibility path. This is stated in the workflow and the README.
+- **Pre-publication check:** no secrets tracked (`.env` ignored; no key patterns found). `data/labels/validation_template.csv` contains 200 PubMed abstracts. It is now gitignored and was removed from local git history before the first push (`git filter-branch`, verified 0 commits contain it). It is regenerated identically by `analysis/R/ai_triage.R` (seeded). Your completed labels file is also gitignored; only the benchmark results (`ai_triage.json`) are published.
+- **Waiting on you:** GitHub login (`gh auth login`), then repo creation, push, Pages setup and live-site check.
