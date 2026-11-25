@@ -1,0 +1,18 @@
+# Raw downloads and derived microdata (rebuilt by `make data`)
+data/raw/xpt/
+data/raw/codebooks/
+data/derived/
+# Secrets
+.env
+# R
+.Rhistory
+.RData
+.Rproj.user/
+renv/library/
+renv/staging/
+renv/local/
+# Node / site
+node_modules/
+site/dist/
+# OS
+.DS_Store

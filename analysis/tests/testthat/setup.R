@@ -1,0 +1,7 @@
+root <- Sys.getenv("CCD_ROOT")
+if (root == "") root <- normalizePath(file.path("..", ".."))
+Sys.setenv(CCD_ROOT = root)
+old <- setwd(root)
+source(file.path(root, "analysis/R/design.R"))
+pooled <- load_pooled()
+withr::defer(setwd(old), teardown_env())
