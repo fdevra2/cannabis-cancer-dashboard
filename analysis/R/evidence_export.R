@@ -15,7 +15,7 @@ v$title <- vapply(v$doi, function(d) recs[[d]]$title %||% "", "")
 write_site_json(v, "evidence.json", list(
   note = "Only rows whose DOI was fetched and whose estimate, CI and quoted sentence were matched verbatim to the archived source text (test-evidence.R).",
   n_unverified_excluded = sum(ev$status != "VERIFIED"),
-  direction_rule = "higher risk: lower CI bound > 1; lower risk: upper CI bound < 1; otherwise no clear association",
+  direction_rule = "positive association: lower CI bound > 1; inverse association: upper CI bound < 1; otherwise no clear association (descriptive labels, not causal claims)",
   grades = gr,
   nasem = list(citation = "National Academies of Sciences, Engineering, and Medicine. 2017. The Health Effects of Cannabis and Cannabinoids: The Current State of Evidence and Recommendations for Research. Washington, DC: The National Academies Press.",
                doi = "10.17226/24625")))

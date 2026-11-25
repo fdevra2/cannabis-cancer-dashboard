@@ -89,7 +89,7 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 - All R tests pass (design, harmonize, manifest, models, NCHS obesity, BMJ Open).
 
 ### Key results (ages 20–59, 2005–2018; for the site)
-- Ever-use and any cancer: OR 1.32 (crude) → 1.32 (+demographics) → 1.19 (0.97–1.47) (+tobacco) → 1.19 (0.96–1.47) (all four blocks). Excluding skin + cervical cancers: 1.07–1.13, CIs include 1.
+- Ever-use and any cancer: OR 1.32 (crude) → 1.32 (+demographics) → 1.19 (0.97–1.47) (+tobacco only; an intermediate step) → **headline, all four blocks: OR 1.19 (95% CI 0.96–1.47)**. Excluding skin + cervical cancers: 1.07–1.13, CIs include 1.
 - Past-30-day use: crude 1.17 → 1.68 after demographics. Confounding by age runs the other way: current users are young, and young people rarely have cancer.
 - Reverse causation: 93.0% of cancer survivors who ever used cannabis started before diagnosis, 1.8% in the same year, 5.3% after. Excluding post-diagnosis initiators: ever-use OR 1.19 → 1.11; regular use 1.44 → 1.25.
 - Women, cervical cancer: ever-use OR 2.48 crude → 1.19 with all four blocks; adding measured vaginal HPV 16/18 changes it little (1.18). Current HPV DNA is a poor marker of the past infection that caused a (treated) cancer, so this does **not** show that HPV is not a confounder.
@@ -122,7 +122,7 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 - **Every row has a DOI** that was fetched (test).
 - **Every VERIFIED row's quote appears verbatim in the archived abstract/full text, and the estimate, lower and upper CI values appear in that quote** (test, 38/38).
 - **NASEM grades** (5-1 lung: moderate evidence of no association; 5-2 head & neck: moderate evidence of no association; 5-3 non-seminoma TGCT: limited evidence of association; 5-4 esophageal and 5-5 prostate/cervical/bladder: insufficient) match the official NAP conclusions PDF verbatim (test).
-- Findings in every direction: 16 higher risk, 4 lower risk, 18 no clear association (rule: CI entirely above 1 / entirely below 1 / includes 1).
+- Findings in every direction: 16 positive association, 4 inverse association, 18 no clear association (rule: CI entirely above 1 / entirely below 1 / includes 1). After the Final fixes (Gallagher rows removed): 12 / 4 / 18 of 34 verified.
 - The three recent meta-analyses you named were found and verified:
   - **Oral cancer, J Ethn Subst Abuse 2025** (Ibrahim Mohammad et al., doi:10.1080/15332640.2025.2581692): pooled OR 0.659 (0.500–0.869), case-control only.
   - **Testicular GCT** (Kardoust Parizi et al., *BJU Int*, doi:10.1111/bju.70062; Europe PMC lists 2026): current use OR 1.62 (1.13–2.31); ≥10 years 1.68 (1.19–2.36).
@@ -235,3 +235,17 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
   - history rewritten so no commit contains the lab name, your Dartmouth email or the abstract-containing template;
   - all commits authored with your GitHub no-reply address, set for this repo only.
 - GitHub CLI needed the extra `workflow` scope to push `.github/workflows/pages.yml`; you approved it.
+
+---
+
+## Final fixes (2026-11-25)
+
+1. **CEI name.** Full texts are paywalled (ScienceDirect 403). In the PubMed records, "Cannabis Exposure Index" appears 3 times (the *Drug Alcohol Depend* title and author keyword; the *Prev Med* abstract: "…completed the Cannabis Exposure Index online survey.") and "Cannabis Exposure Inventory" once (*Drug Alcohol Depend* abstract: "To address this, we developed the self-administered CEI (Cannabis Exposure Inventory) to determine milligrams of THC used per using day (mgTHC/using day)."). The site uses "Cannabis Exposure Index (CEI)" throughout.
+2. **Headline, identical everywhere:** **OR 1.19 (95% CI 0.96–1.47)** (ever vs never, any cancer, all four covariate blocks, complete case). Unrounded: OR 1.188209943066222, 95% CI 0.960481746440144–1.469932014881263; log OR 0.17245, SE 0.10699, residual df 84; n = 20,449, 836 cases. `test-headline.R` checks the README, methods and this file against the model output. The site computes the same string from the data, and the NHANES toggle now opens on this model.
+3. **Gallagher et al. 2024:** the "Error in Abstract" correction (doi:10.1001/jamaoto.2025.0242) exists only as a PDF that PMC/Europe PMC blocked, and no JAMA page was found. Its 4 rows (H08–H11) are now **UNVERIFIED** and off the site (34 verified estimates remain).
+4. **Georgia SB 220 (2026):** verified against the as-passed bill text (legis.ga.gov document 20252026/247231) and a report of the governor signing it (FOX 5 Atlanta, 2026-05-13). It renames "low THC oil" as "medical cannabis", replaces the 5% THC limit with a 12,000 mg possession limit, and keeps smoking prohibited while allowing vaporization. **Classification: comprehensive medical-use law from 2026**, consistent with NCSL Table 1 ("Replaces previous low-THC program"); the earlier low-THC program is not counted. Notes added to the chart and the methods.
+5. **Missing income sensitivity** (`models_pir.json`, NHANES Explorer → "Missing income"). For ever-use and any cancer, coding missing income-to-poverty ratio as its own category (n = 22,119, 890 cases) gives **OR 1.28 (95% CI 1.03–1.59)** vs the complete-case headline OR 1.19 (95% CI 0.96–1.47). **The "no clear association" conclusion is sensitive to this choice.** This is stated on the Overview, in the README and in the methods.
+6. **Wording:** headline is "no clear association after accounting for smoking". Evidence directions relabelled "positive association / inverse association / no clear association", and a test blocks "increased/higher/lower/reduced risk" wording in site code and docs. Cited paper titles are left verbatim (e.g. Karimi 2026).
+7. **Literature joint-year cut-offs** (≥1, ≥10; Ghasemiesfe 2019, Zhang 2015) added alongside the data-driven ones. Fully adjusted ORs for any cancer: <1 joint-year 1.04, 1–9.9 1.54, ≥10 1.28 (no monotonic gradient).
+8. **Potency note:** "DEA-seized potency does not represent products sold in state-legal markets" shown on the Policy tab (callout and chart note), on the Exposure tab and in the methods.
+9. **Human-benchmark panel** is hidden until `data/labels/validation_labels.csv` exists.

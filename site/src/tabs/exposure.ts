@@ -74,10 +74,10 @@ export async function renderExposure(root: HTMLElement) {
 
   // 3) Dose-response
   const sec3 = el("section", { class: "section" }, el("h3", {}, "Is there a dose–response gradient?"),
-    el("p", { class: "sub" }, "If cannabis caused cancer, heavier or longer use would usually carry higher risk. Each category is compared with never-users."));
+    el("p", { class: "sub" }, "If cannabis caused cancer, heavier or longer use would usually show stronger associations. Each category is compared with never-users."));
   const doseHost = el("div");
   sec3.append(controlRow(
-    select("Exposure measure", [{ value: "mj_days_cat", label: "Days used in past 30 days" }, { value: "mj_jy_cat", label: "Joint-year proxy (2009–2018)" }], st.dose, (v) => { st.dose = v; drawDose(); }),
+    select("Exposure measure", [{ value: "mj_days_cat", label: "Days used in past 30 days" }, { value: "mj_jy_cat", label: "Joint-year proxy, data-driven cut-offs (<5, 5–19.9, ≥20)" }, { value: "mj_jy_lit_cat", label: "Joint-year proxy, literature cut-offs (≥1, ≥10)" }], st.dose, (v) => { st.dose = v; drawDose(); }),
     select("Adjusted for", [{ value: "crude", label: "Nothing (crude)" }, { value: "demo", label: "Demographics" }, { value: "demo_tobacco", label: "Demographics + tobacco" }, { value: "all", label: "All four groups" }], st.set, (v) => { st.set = v; drawDose(); }),
   ), doseHost);
   root.append(sec3);
@@ -89,7 +89,7 @@ export async function renderExposure(root: HTMLElement) {
     const monotone = rs.every((r, i) => i === 0 || r.or >= rs[i - 1].or);
     const allOverlap = Math.max(...rs.map((r) => r.lcl)) <= Math.min(...rs.map((r) => r.ucl));
     doseHost.replaceChildren(figure({
-      title: `${st.dose === "mj_days_cat" ? "Days used in past 30 days" : "Joint-year proxy"} and ${outcomes[st.outcome].toLowerCase()}`,
+      title: `${st.dose === "mj_days_cat" ? "Days used in past 30 days" : st.dose === "mj_jy_cat" ? "Joint-year proxy (data-driven cut-offs)" : "Joint-year proxy (literature cut-offs)"} and ${outcomes[st.outcome].toLowerCase()}`,
       what: monotone
         ? `Point estimates rise across categories (${rs.map((r) => f2(r.or)).join(" → ")})${allOverlap ? ", but every category’s confidence interval overlaps every other’s, so this is weak evidence of a gradient" : ""}.`
         : `The odds ratios do not rise steadily with heavier use (${rs.map((r) => f2(r.or)).join(", ")}) — no consistent dose–response gradient.`,
@@ -106,7 +106,9 @@ export async function renderExposure(root: HTMLElement) {
         ],
       }),
       table: { columns: ["Category", "OR", "95% CI", "n", "Cases"], rows: pts.map((p) => [p.level, p.ref ? "1 (reference)" : f2(p.or), p.ref ? "—" : `${f2(p.lcl)}–${f2(p.ucl)}`, int(p.n), int(p.cases)]) },
-      notes: ["Open circle = reference group (never used)."],
+      notes: ["Open circle = reference group (never used). Joint-year categories use 2009–2018 only.",
+        ...(st.dose === "mj_jy_cat" ? ["Data-driven cut-offs were chosen from the distribution among regular users in this sample (median 6.3 joint-years); they are not from the literature."] : []),
+        ...(st.dose === "mj_jy_lit_cat" ? ["Literature cut-offs: ≥1 joint-year is the “ever use” definition in Ghasemiesfe et al. 2019 (doi:10.1001/jamanetworkopen.2019.16318); ≥10 joint-years is a category used by Zhang et al. 2015 (doi:10.1002/ijc.29036). Ever-users who never used regularly have 0 joint-years and fall in “<1”."] : [])],
     }));
   }
   drawDefs(); drawDose();
@@ -115,7 +117,7 @@ export async function renderExposure(root: HTMLElement) {
   root.append(el("section", { class: "section" },
     el("h3", {}, "What survey questions like NHANES’ miss"),
     el("div", { class: "cards" },
-      card("Potency", "NHANES never asks how much THC a product contained. Average potency has changed over time (see Policy Context), so “one joint” is not a stable unit."),
+      card("Potency", "NHANES never asks how much THC a product contained. Average potency of DEA-seized cannabis has changed over time (see Policy Context), so “one joint” is not a stable unit. Seized-sample potency does not represent products sold in state-legal markets."),
       card("Route of administration", "Smoking produces combustion products; edibles and many vaporized products do not. For lung and head-and-neck cancer the route may matter as much as the amount, but NHANES 2005–2018 does not record it."),
       card("Quantity per day", "NHANES asks how many joints or pipes per day during regular use (2009–2018 only), not milligrams of THC, and nothing about concentrates, vapes or edibles."),
       card("Timing and change", "One cross-sectional interview cannot reconstruct a lifetime exposure history or show when use started, stopped or increased relative to a diagnosis."),

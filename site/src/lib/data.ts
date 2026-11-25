@@ -65,3 +65,5 @@ export interface EvidenceRow {
   source_text: string; quote: string; status: string; notes: string; journal: string; authors: string; title: string;
 }
 export interface GradeRow { site_group: string; nasem_conclusion: string; grade_category: string; grade_short: string; quote_header: string; quote_item: string; doi: string }
+
+export interface PirRow { exposure: string; outcome: string; approach: "complete_case" | "missing_category"; or: number; lcl: number; ucl: number; df: number; n: number; cases: number; exp_cases: number; n_pir_missing: number }

@@ -46,12 +46,16 @@ export async function renderPolicy(root: HTMLElement) {
       rows: rows.map((r) => [r.jurisdiction, r.medical_text, r.medical_first_year ?? "—", r.adult_use_text || "—", r.adult_use_first_year ?? "—", r.needs_review ? "Flagged for review; not charted" : r.type === "Territory" ? "Territory; not charted" : ""]) },
     notes: [
       `Source: NCSL, “State Medical Cannabis Laws”, Table 1 (${meta.ncsl.page_updated}; counts stated ${meta.ncsl.laws_as_of}). ${meta.ncsl.note}`,
+      "“Medical use law” = a comprehensive medical cannabis program as defined by NCSL (Table 1). Low-THC/high-CBD programs (NCSL Table 2) are not counted, so states such as Georgia appear only from the year their program became comprehensive.",
+      "Georgia: SB 220 (2026), the “Putting Georgia’s Patients First Act”, renamed “low THC oil” as “medical cannabis”, replaced the 5% THC limit with a 12,000 mg THC possession limit, and kept smoking prohibited while allowing vaporization (as-passed bill text, legis.ga.gov; signed by the governor in May 2026). NCSL lists it as replacing the earlier low-THC program.",
       "States not in NCSL’s Table 1 are counted as having no law. The District of Columbia and territories are listed in the table but not charted.",
     ],
   }));
   root.querySelector(".chart:last-of-type .note")?.append(" ", el("a", { href: meta.ncsl.url, target: "_blank", rel: "noopener" }, "ncsl.org"));
 
   // Potency
+  root.append(el("p", { class: "caveat" }, el("strong", {}, "About these potency numbers. "),
+    "They come from illicit herbal cannabis seized by the U.S. Drug Enforcement Administration (DEA) and tested by the University of Mississippi Potency Monitoring Program. Seized samples do not represent products sold in state-legal medical or adult-use markets (including concentrates, vapes and edibles), so these figures should not be read as the potency people buy legally."));
   const pot = meta.potency.map((p) => ({ ...p, approximate: String(p.approximate).toUpperCase() === "TRUE" }));
   const seriesNames = [...new Set(pot.map((p) => p.series))];
   const pc = (s: string) => (s === seriesNames[0] ? cssVar("--accent-mark") : cssVar("--series-2"));

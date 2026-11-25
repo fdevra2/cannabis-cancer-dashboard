@@ -6,6 +6,10 @@ An interactive dashboard on what the cannabis–cancer literature and U.S. surve
 
 **Live site:** https://fdevra2.github.io/cannabis-cancer-dashboard/
 
+## Headline result
+
+Among U.S. adults aged 20–59 (NHANES 2005–2018), ever using cannabis versus never using it, adjusted for demographics, smoking, alcohol and socioeconomic factors: **OR 1.19 (95% CI 0.96–1.47)** for any self-reported cancer. This is **no clear association after accounting for smoking**. The result depends on how missing income data are handled: coding missing income-to-poverty ratio as its own category gives OR 1.28 (95% CI 1.03–1.59). Unrounded: OR 1.188209943066222, 95% CI 0.960481746440144–1.469932014881263 (n = 20,449; 836 cases; residual df 84). This is a cross-sectional association in survivors; see Methods & Limitations.
+
 ## Reproduce
 
 Requirements: R 4.6.1 (packages pinned in `renv.lock`), Node 24 LTS (`.nvmrc`), `make`.

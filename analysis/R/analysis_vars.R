@@ -8,6 +8,9 @@ add_analysis_vars <- function(d) {
   d$cycle_f <- factor(d$cycle)
   d$pir_cat <- cut(d$pir, c(-Inf, 1, 2, 4, Inf), right = FALSE,
                    labels = c("<1.00", "1.00–1.99", "2.00–3.99", "≥4.00"))
+  # Sensitivity: income-to-poverty ratio with an explicit "Missing" category (instead of complete-case)
+  d$pir_cat_m <- factor(ifelse(is.na(d$pir_cat), "Missing", as.character(d$pir_cat)),
+                        levels = c(levels(d$pir_cat), "Missing"))
   d$smk_ever <- ifelse(d$smk_status %in% c("Former", "Current"), 1L, ifelse(d$smk_status == "Never", 0L, NA_integer_))
   d$smk_current <- ifelse(d$smk_status == "Current", 1L, ifelse(d$smk_status %in% c("Never", "Former"), 0L, NA_integer_))
   d$mj_daily <- ifelse(is.na(d$mj_days30), NA_integer_, as.integer(d$mj_days30 >= 20))
@@ -38,6 +41,17 @@ add_analysis_vars <- function(d) {
                  ifelse(d$mj_joint_years < 20, "Regular, 5–19.9 joint-years", "Regular, ≥20 joint-years")))))),
                  levels = c("Never used", "Ever, never regular", "Regular, <5 joint-years",
                             "Regular, 5–19.9 joint-years", "Regular, ≥20 joint-years"))
+
+  # Literature-based joint-year cut-offs (>=1 joint-year: "ever use" definition in Ghasemiesfe et al. 2019,
+  # doi:10.1001/jamanetworkopen.2019.16318; >=10 joint-years: Zhang et al. 2015, doi:10.1002/ijc.29036).
+  # Ever-users who never used regularly have 0 joint-years (-> "<1").
+  d$mj_jy_lit_cat <- factor(ifelse(!(d$cycle %in% c("F", "G", "H", "I", "J")), NA,
+                     ifelse(never, "Never used",
+                     ifelse(d$mj_regular == 0, "Ever, <1 joint-year",
+                     ifelse(is.na(d$mj_joint_years), NA,
+                     ifelse(d$mj_joint_years < 1, "Ever, <1 joint-year",
+                     ifelse(d$mj_joint_years < 10, "1–9.9 joint-years", "≥10 joint-years")))))),
+                     levels = c("Never used", "Ever, <1 joint-year", "1–9.9 joint-years", "≥10 joint-years"))
 
   # Reverse-causation timing (cases only). Ages are whole years, so "same" is ambiguous.
   timing <- function(age_use, age_dx) ifelse(is.na(age_use) | is.na(age_dx), NA_character_,

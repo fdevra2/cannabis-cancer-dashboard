@@ -24,13 +24,13 @@ test_that("VERIFIED rows: quote is verbatim in the archived source and contains 
 test_that("direction label follows the CI rule", {
   v <- ev[ev$status == "VERIFIED", ]
   l <- as.numeric(v$lcl); u <- as.numeric(v$ucl)
-  expect_equal(v$direction, ifelse(l > 1, "higher risk", ifelse(u < 1, "lower risk", "no clear association")))
+  expect_equal(v$direction, ifelse(l > 1, "positive association", ifelse(u < 1, "inverse association", "no clear association")))
 })
 
 test_that("evidence covers required sites and all directions", {
   v <- ev[ev$status == "VERIFIED", ]
   expect_true(all(c("Lung", "Head and neck (incl. oral)", "Testicular germ cell") %in% v$site_group))
-  expect_true(all(c("higher risk", "lower risk", "no clear association") %in% v$direction))
+  expect_true(all(c("positive association", "inverse association", "no clear association") %in% v$direction))
 })
 
 test_that("NASEM grade wording is verbatim in the official conclusions PDF", {
@@ -45,4 +45,8 @@ test_that("NASEM grade wording is verbatim in the official conclusions PDF", {
 test_that("UNVERIFIED rows never reach the site", {
   j <- jsonlite::fromJSON(file.path(Sys.getenv("CCD_ROOT"), "site/public/data/evidence.json"))$data
   expect_false(any(j$id %in% ev$id[ev$status != "VERIFIED"]))
+})
+
+test_that("Gallagher 2024 rows (correction text unavailable) are UNVERIFIED", {
+  expect_true(all(ev$status[ev$id %in% c("H08", "H09", "H10", "H11")] == "UNVERIFIED"))
 })

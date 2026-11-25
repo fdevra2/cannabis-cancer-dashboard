@@ -77,12 +77,12 @@ export async function renderEvidence(root: HTMLElement) {
         est: r.estimate, lcl: r.lcl, ucl: r.ucl, group: isPooled(r.design) ? "pooled" : "single",
         tip: `${r.effect_measure} ${fmt(r.estimate)} (95% CI ${fmt(r.lcl)}–${fmt(r.ucl)})\n${r.study}, ${r.year}${r.journal ? ` · ${r.journal}` : ""}\n${r.cancer_site}: ${r.exposure_definition} vs ${r.comparison.toLowerCase()}\nTobacco adjusted: ${r.adjusted_for_tobacco} · doi:${r.doi}`,
       }));
-      const nHigher = sr.filter((r) => r.direction === "higher risk").length;
-      const nLower = sr.filter((r) => r.direction === "lower risk").length;
+      const nHigher = sr.filter((r) => r.direction === "positive association").length;
+      const nLower = sr.filter((r) => r.direction === "inverse association").length;
       const nNull = sr.length - nHigher - nLower;
       const fig = figure({
         title: `${site}: ${sr.length} estimate${sr.length > 1 ? "s" : ""}`,
-        what: `${nHigher} estimate${nHigher === 1 ? "" : "s"} with the whole confidence interval above 1, ${nLower} entirely below 1, and ${nNull} whose interval includes 1 (no clear association).`,
+        what: `${nHigher} estimate${nHigher === 1 ? "" : "s"} with the whole confidence interval above 1 (positive association), ${nLower} entirely below 1 (inverse association), and ${nNull} whose interval includes 1 (no clear association). Associations, not evidence of cause.`,
         alt: `Forest plot for ${site}. ` + sr.map((r) => `${r.study} ${r.year}, ${r.cancer_site}, ${r.exposure_definition}: ${r.effect_measure} ${fmt(r.estimate)} (${fmt(r.lcl)} to ${fmt(r.ucl)})`).join("; "),
         render: (w) => forestPlot(fr, w, { symbolBy: (r) => (r.group === "pooled" ? "diamond" : "circle") }),
         table: {

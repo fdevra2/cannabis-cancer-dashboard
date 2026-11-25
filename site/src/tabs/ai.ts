@@ -110,7 +110,7 @@ export async function renderAI(root: HTMLElement) {
       el("p", {}, "SHAP splits a model’s prediction among its inputs. A feature earns importance if it helps predict the outcome — including through correlation with true causes (tobacco, age, HPV), with who gets diagnosed, or with who survives to be surveyed."),
       el("p", {}, "Correlated features share or steal credit: if cannabis and smoking travel together, the model can lean on either. And SHAP has no notion of intervention — it never asks what happens if someone stops using cannabis.")),
     el("div", { class: "card" }, el("h3", {}, "What a predictive model is good for"),
-      el("p", {}, "Prediction is useful for targeting screening or outreach, flagging records, or checking data quality — tasks where knowing who is at higher risk matters more than knowing why. Causal questions need causal designs (and the confounding, reverse-causation and measurement checks elsewhere on this site)."))));
+      el("p", {}, "Prediction is useful for targeting screening or outreach, flagging records, or checking data quality — tasks where knowing who is more likely to have an outcome matters more than knowing why. Causal questions need causal designs (and the confounding, reverse-causation and measurement checks elsewhere on this site)."))));
   root.append(secA);
 
   /* -------- (b) Literature triage -------- */
@@ -159,13 +159,8 @@ export async function renderAI(root: HTMLElement) {
 
   // Benchmark
   const b = T.benchmark;
-  if (b.status !== "complete") {
-    secB.append(el("div", { class: "card", role: "status" },
-      el("h3", {}, "Benchmark against human labels: awaiting labels"),
-      el("p", {}, "No agreement statistics are shown yet — they will be computed only from real human labels, never simulated."),
-      el("p", {}, "A stratified random sample of 200 abstracts has been exported for blind labelling (data/labels/validation_template.csv), with a labelling guide (docs/labeling_guide.md). Once the completed file is saved as data/labels/validation_labels.csv and the pipeline is rerun, this panel will show Cohen’s kappa (with 95% CI), raw agreement and confusion matrices for design and site — for the rule-based classifier and, if run, an optional LLM classifier."),
-    ));
-  } else {
+  // The human-benchmark panel is shown only once real human labels exist (data/labels/validation_labels.csv).
+  if (b.status === "complete") {
     for (const [name, k] of [["Study design (rules)", b.design], ["Cancer site (rules)", b.site], ["Study design (LLM)", b.llm?.design], ["Cancer site (LLM)", b.llm?.site]] as [string, Kappa | undefined][]) {
       if (!k) continue;
       secB.append(figure({
@@ -182,7 +177,7 @@ export async function renderAI(root: HTMLElement) {
       }));
     }
   }
-  secB.append(el("p", { class: "note prose" },
-    "Optional LLM classifier: analysis/R/ai_triage_llm.R classifies the same 200 abstracts with Claude (structured JSON output constrained to the labelling guide’s categories) when an API key is provided. It is not part of the default build and has not been run for this version of the site."));
+  if (b.status === "complete") secB.append(el("p", { class: "note prose" },
+    "Optional LLM classifier: analysis/R/ai_triage_llm.R classifies the same 200 abstracts with Claude (structured JSON output constrained to the labelling guide’s categories) when an API key is provided."));
   root.append(secB);
 }

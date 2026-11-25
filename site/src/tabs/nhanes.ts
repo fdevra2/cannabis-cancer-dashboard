@@ -1,5 +1,5 @@
 import * as Plot from "@observablehq/plot";
-import { loadData, type Proportion, type GridRow, type HpvRow, type TimingRow } from "../lib/data";
+import { loadData, type Proportion, type GridRow, type HpvRow, type TimingRow, type PirRow } from "../lib/data";
 import { figure, cssVar, plotStyle, shortCycle, responsive } from "../lib/chart";
 import { forestPlot, type ForestRow } from "../lib/forest";
 import { el } from "../lib/dom";
@@ -34,17 +34,20 @@ export async function renderNhanes(root: HTMLElement) {
   const meta = grid.meta as unknown as GridMeta;
 
   const nav = el("nav", { class: "legend-inline", "aria-label": "On this page" },
-    el("a", { href: "#nhanes/toggle" }, "Confounding toggle"), el("a", { href: "#nhanes/speccurve" }, "Specification curve"),
+    el("a", { href: "#nhanes/toggle" }, "Confounding toggle"), el("a", { href: "#nhanes/missing" }, "Missing income"), el("a", { href: "#nhanes/speccurve" }, "Specification curve"),
     el("a", { href: "#nhanes/reverse" }, "Reverse-causation lens"), el("a", { href: "#nhanes/hpv" }, "HPV sensitivity"),
     el("a", { href: "#nhanes/prevalence" }, "Prevalence"));
   root.append(nav);
 
   // Shared selection between toggle and spec curve
-  const sel = { outcome: "cancer_any", exposure: "x_ever", sample: "main", blocks: ["demo"] as string[] };
+  // Opens on the headline model (all four covariate groups) so it matches the Overview.
+  const sel = { outcome: "cancer_any", exposure: "x_ever", sample: "main", blocks: ["demo", "tobacco", "alcohol", "ses"] as string[] };
   const listeners: (() => void)[] = [];
   const changed = () => listeners.forEach((f) => f());
 
   root.append(toggleSection(grid.data, meta, sel, changed, listeners));
+  const pir = await loadData<PirRow>("models_pir.json");
+  root.append(pirSection(pir.data, meta, sel, listeners));
   root.append(specCurveSection(grid.data, meta, sel, listeners));
   root.append(reverseSection(rc.data, grid.data, meta));
   root.append(hpvSection(hpv.data, meta));
@@ -151,6 +154,38 @@ function pathFigure(rows: GridRow[], meta: GridMeta, sel: { outcome: string; exp
     table: { columns: ["Model", "OR", "95% CI", "n", "Cases"], rows: data.map((d) => [d.label, f2(d.row.or), `${f2(d.row.lcl)}–${f2(d.row.ucl)}`, int(d.row.n), int(d.row.cases)]) },
     notes: [`${meta.analytic_sample_rule}.`, `${meta.model}.`, SURVIVORSHIP],
   });
+}
+
+/* ---------------- Missing income data sensitivity ---------------- */
+function pirSection(rows: PirRow[], meta: GridMeta, sel: { outcome: string }, listeners: (() => void)[]) {
+  const sec = el("section", { class: "section", id: "nhanes-missing", "aria-labelledby": "pir-h" },
+    el("h3", { id: "pir-h" }, "Sensitivity: missing income data"),
+    el("p", { class: "sub" }, "The main analysis drops people with a missing income-to-poverty ratio (complete case). The alternative keeps them, coding missing income as its own category. Both are fully adjusted; the outcome follows the toggle above."));
+  const host = el("div");
+  sec.append(host);
+  const expShort: Record<string, string> = { x_ever: "Ever used", x_regular: "Regular use", x_past30: "Past 30 days", x_heavy: "≥20 joint-years" };
+  const draw = () => {
+    const rs = rows.filter((r) => r.outcome === sel.outcome);
+    const fr: ForestRow[] = rs.map((r) => ({ key: `${r.exposure}-${r.approach}`, label: `${expShort[r.exposure]}\n${r.approach === "complete_case" ? "Complete case (main)" : "Missing income as a category"}`,
+      est: r.or, lcl: r.lcl, ucl: r.ucl, emphasis: r.approach !== "complete_case",
+      tip: `OR ${f2(r.or)} (95% CI ${f2(r.lcl)}–${f2(r.ucl)})\nn = ${int(r.n)}, cases = ${int(r.cases)}${r.n_pir_missing ? `, incl. ${int(r.n_pir_missing)} with missing income` : ""}` }));
+    const ev = (a: string) => rs.find((r) => r.exposure === "x_ever" && r.approach === a)!;
+    const changes = rs.filter((r) => r.approach === "missing_category").filter((m) => {
+      const c = rs.find((r) => r.exposure === m.exposure && r.approach === "complete_case")!;
+      return (c.lcl <= 1 && c.ucl >= 1) !== (m.lcl <= 1 && m.ucl >= 1);
+    }).map((m) => expShort[m.exposure].toLowerCase());
+    host.replaceChildren(figure({
+      title: `Complete case vs missing-income category: ${meta.outcomes[sel.outcome].toLowerCase()}`,
+      what: `For ever-use, the fully adjusted odds ratio is ${f2(ev("complete_case").or)} (95% CI ${f2(ev("complete_case").lcl)}–${f2(ev("complete_case").ucl)}) with complete cases and ${f2(ev("missing_category").or)} (${f2(ev("missing_category").lcl)}–${f2(ev("missing_category").ucl)}) when missing income is kept as a category${changes.length ? `; whether the confidence interval includes 1 changes for ${changes.join(", ")}` : "; neither choice changes whether any interval includes 1"}.`,
+      alt: "Forest plot comparing complete-case and missing-category models: " + fr.map((r) => `${r.label.replace("\n", ", ")} ${f2(r.est)} (${f2(r.lcl)}–${f2(r.ucl)})`).join("; "),
+      render: (w) => forestPlot(fr, w, { domain: [0.5, 5], marginLeft: 320, narrowLabel: "join" }),
+      table: { columns: ["Exposure", "Approach", "OR", "95% CI", "n", "Cases"], rows: rs.map((r) => [expShort[r.exposure], r.approach === "complete_case" ? "Complete case (main)" : "Missing income as a category", f2(r.or), `${f2(r.lcl)}–${f2(r.ucl)}`, int(r.n), int(r.cases)]) },
+      notes: ["A missing-indicator category is a simple sensitivity check, not a fix: it can itself be biased. Multiple imputation was not performed. Grey = complete case; blue = missing-income category."],
+    }));
+  };
+  listeners.push(draw);
+  draw();
+  return sec;
 }
 
 /* ---------------- Specification curve ---------------- */

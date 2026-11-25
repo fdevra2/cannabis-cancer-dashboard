@@ -135,7 +135,7 @@ run_hpv <- function(des) {
 run_dose <- function(des) {
   v <- des$variables
   rows <- list()
-  defs <- list(mj_days_cat = CYCLES$suffix, mj_jy_cat = c("F", "G", "H", "I", "J"))
+  defs <- list(mj_days_cat = CYCLES$suffix, mj_jy_cat = c("F", "G", "H", "I", "J"), mj_jy_lit_cat = c("F", "G", "H", "I", "J"))
   sets <- list(crude = character(0), demo = BLOCKS$demo, demo_tobacco = c(BLOCKS$demo, BLOCKS$tobacco),
                all = unlist(BLOCKS))
   for (ex in names(defs)) for (oc in names(OUTCOMES)) {
@@ -161,6 +161,29 @@ run_dose <- function(des) {
   do.call(rbind, rows)
 }
 
+# Sensitivity for missing income-to-poverty ratio: complete-case (main analysis) vs a "Missing" PIR category
+# (which keeps people with unknown PIR). Fully adjusted models (all four blocks), main sample.
+run_pir <- function(des) {
+  v <- des$variables
+  cov_cc <- unlist(BLOCKS)
+  cov_m <- sub("^pir_cat$", "pir_cat_m", cov_cc)
+  rows <- list()
+  for (ex in names(EXPOSURES)) for (oc in names(OUTCOMES)) {
+    base <- v$duq_answered == 1 & v$age >= 20 & v$age <= 59 & v$wt_pooled > 0 & v$cycle %in% EXPOSURE_CYCLES[[ex]] &
+      !is.na(v[[ex]]) & !is.na(v[[oc]])
+    for (approach in c("complete_case", "missing_category")) {
+      covs <- if (approach == "complete_case") cov_cc else cov_m
+      keep <- base & complete.cases(v[, covs]); keep[is.na(keep)] <- FALSE
+      r <- fit_or(des, keep, oc, ex, covs)[[1]]
+      y <- v[[oc]][keep]; x <- v[[ex]][keep]
+      rows[[length(rows) + 1]] <- data.frame(exposure = ex, outcome = oc, approach = approach,
+        or = r$or, lcl = r$lcl, ucl = r$ucl, df = r$df, n = sum(keep), cases = sum(y == 1),
+        exp_cases = sum(y == 1 & x == 1), n_pir_missing = sum(keep & is.na(v$pir_cat)), stringsAsFactors = FALSE)
+    }
+  }
+  do.call(rbind, rows)
+}
+
 if (sys.nframe() == 0) {
   d <- load_analysis()
   des <- make_design(d)
@@ -175,5 +198,8 @@ if (sys.nframe() == 0) {
                samples = as.list(SAMPLES))
   write_site_json(grid, "models_grid.json", meta)
   write_site_json(run_hpv(des), "models_hpv.json", meta[c("design", "model", "flag_rule")])
-  write_site_json(run_dose(des), "models_dose.json", meta[c("design", "model", "flag_rule", "outcomes")])
+  write_site_json(run_dose(des), "models_dose.json", c(meta[c("design", "model", "flag_rule", "outcomes")], list(
+    jy_literature = "Literature cut-offs: >=1 joint-year (ever-use definition, Ghasemiesfe et al. 2019, doi:10.1001/jamanetworkopen.2019.16318); >=10 joint-years (Zhang et al. 2015, doi:10.1002/ijc.29036)")))
+  write_site_json(run_pir(des), "models_pir.json", c(meta[c("design", "model")], list(
+    note = "Fully adjusted models (all four covariate blocks). complete_case = main analysis (people with missing income-to-poverty ratio excluded); missing_category = income-to-poverty ratio coded with an explicit Missing level so those people are kept.")))
 }

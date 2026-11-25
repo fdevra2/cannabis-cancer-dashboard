@@ -37,7 +37,11 @@ pot <- read.csv(root_path("data", "potency.csv"), stringsAsFactors = FALSE)
 write_site_json(out, "policy.json", list(
   ncsl = list(url = url, page_updated = updated, laws_as_of = as_of,
               sha256 = digest::digest(file = html_path, algo = "sha256"),
-              note = "Year = earliest year in parentheses in NCSL Table 1 for the medical-use statute/ballot measure, and for the adult-use column. This is the year of the law or ballot measure as listed by NCSL, not necessarily the effective date or the start of retail sales. Rows NCSL annotates as blocked/pending are flagged for review and not charted."),
+              note = "Medical-use law = comprehensive medical cannabis program as defined by NCSL (Table 1); low-THC/CBD-only programs (NCSL Table 2) are not counted. Year = earliest year in parentheses in NCSL Table 1 for the medical-use statute/ballot measure, and for the adult-use column. This is the year of the law or ballot measure as listed by NCSL, not necessarily the effective date or the start of retail sales. Rows NCSL annotates as blocked/pending are flagged for review and not charted."),
+  verified = list(georgia = list(
+    finding = "SB 220 (2026), 'Putting Georgia's Patients First Act': renames low THC oil as medical cannabis; replaces the 5 percent THC limit with a 12,000 mg THC possession limit; smoking/combustion remains unlawful, vaporization permitted. Classified as a comprehensive medical-use law from 2026, consistent with NCSL Table 1 ('Replaces previous low-THC program').",
+    sources = c("https://www.legis.ga.gov/api/legislation/document/20252026/247231 (SB 220 as passed)",
+                "FOX 5 Atlanta, 2026-05-13: 'Gov. Brian Kemp signed Senate Bill 220 ... on Tuesday.'"))),
   potency = pot,
-  potency_note = "Mean THC concentration in illicit herbal cannabis seized by the U.S. DEA and analyzed by the University of Mississippi Potency Monitoring Program; values as stated in the study abstracts (~ = approximate). Not representative of state-legal retail products."))
+  potency_note = "Mean THC concentration in illicit herbal cannabis seized by the U.S. DEA and analyzed by the University of Mississippi Potency Monitoring Program; values as stated in the study abstracts (~ = approximate). DEA-seized potency does not represent products sold in state-legal markets."))
 message(sprintf("NCSL rows: %d (%s; %s); flagged: %d", nrow(out), updated, as_of, sum(out$needs_review)))

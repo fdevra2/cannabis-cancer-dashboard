@@ -73,7 +73,11 @@ The joint-year proxy is calculated as frequency × amount × duration:
 * **Amount:** DUQ219 joints or pipes per day; "6 or more" is counted as 6.
 * **Duration:** years of regular use, from DUQ213 to the time since regular use stopped (DUQ215).
 
-This is unvalidated and is **not** the Cannabis Exposure Index.
+This is unvalidated and is **not** the Cannabis Exposure Index (CEI).
+
+Two sets of joint-year cut-offs are shown:
+- **Data-driven:** <5, 5–19.9 and ≥20 joint-years, chosen from the distribution among regular users in this sample (median 6.3). These are not from the literature.
+- **Literature-based:** ≥1 joint-year (the "ever use" definition in Ghasemiesfe et al. 2019, doi:10.1001/jamanetworkopen.2019.16318) and ≥10 joint-years (a category used by Zhang et al. 2015, doi:10.1002/ijc.29036).
 
 **Dose categories:**
 - **Days used in the past 30:** DUQ230 is asked only if last use was ≤30 days ago, so others are coded 0. Categories are never, not in the past 30 days, 1–19 days, and 20–30 days.
@@ -105,7 +109,13 @@ Refused and don't-know codes are removed using each cycle's own codebook, becaus
 - oral HPV 16/18 DNA (ORHPV, 2009–2016);
 - vaginal HPV 16/18 DNA in women (HPVSWR, 2005–2016).
 
-## 5. Analyses
+## 5. Headline result
+
+Ever-use vs never-use of cannabis and any self-reported cancer, adults 20–59, NHANES 2005–2018, adjusted for all four covariate blocks (complete case): **OR 1.19 (95% CI 0.96–1.47)**, i.e. **no clear association after accounting for smoking**. Unrounded: OR 1.188209943066222, 95% CI 0.960481746440144–1.469932014881263 (log OR 0.17245, SE 0.10699, residual df 84; n = 20,449, 836 cases).
+
+**Sensitivity to missing income data:** keeping the 1,670 people with a missing income-to-poverty ratio as a separate category (n = 22,119, 890 cases) gives OR 1.28 (95% CI 1.03–1.59). The conclusion therefore depends on how missing income is handled; neither approach is clearly correct (complete-case analysis can be biased if missingness is related to both exposure and outcome, and missing-indicator coding can be biased too). Multiple imputation was not performed.
+
+## 6. Analyses
 
 - **Confounding toggle and specification curve:** 768 models, covering 4 outcomes × 4 exposure definitions × 3 samples × 16 covariate sets (all subsets of the 4 blocks). The specification curve follows Simonsohn, Simmons & Nelson (2020) descriptively; their joint permutation test is not performed.
 - **Reverse-causation lens:**
@@ -115,16 +125,17 @@ Refused and don't-know codes are removed using each cycle's own codebook, becaus
   - Current use is also described by years since diagnosis.
 - **E-value** (VanderWeele & Ding, 2017): E = RR + √(RR × (RR − 1)), with RR < 1 inverted. Odds ratios are treated as risk ratios when the outcome is rare, and converted as RR ≈ √OR when it is common.
 
-## 6. Validation
+## 7. Validation
 
 - **NCHS Data Brief 360** (Hales et al., 2020): crude obesity prevalence among adults aged 20+ in 2017–2018, excluding pregnant women and using MEC weights. Published: 42.5% overall, 43.0% men, 42.1% women, and 40.0%, 44.8% and 42.8% by age group. Our code reproduces every figure exactly at one decimal (test).
 - **Mitchell, Bhatia & Zebardast, *BMJ Open* 2020** (doi:10.1136/bmjopen-2020-037905): lifetime marijuana use by cycle, 2005–2018. All seven estimates match at one decimal and all Ns match exactly (test).
+- **Headline consistency** (test): the headline string in README, this document and PROGRESS.md must equal the value computed from `models_grid.json`; the missing-income sensitivity string must equal `models_pir.json`.
 - **Evidence table checks** (test):
   - every row has a fetched DOI;
   - every verified row's quoted sentence appears verbatim in the archived source text, and contains the estimate and both CI limits;
   - NASEM wording matches the official PDF.
 
-## 7. Limitations
+## 8. Limitations
 
 1. **Cross-sectional, self-reported data.** Cannabis use and cancer history come from one interview. Timing is reconstructed from recalled ages, and use is under-reported to an unknown degree.
 2. **Survivorship and participation bias.** NHANES includes only people alive, living in the community and able to attend the exam. Fatal cancers such as lung are under-represented, and "cancer history" mostly reflects survivors of less lethal cancers. If cannabis use is related to survival or participation, the estimates can be biased in either direction (collider bias).
@@ -137,13 +148,14 @@ Refused and don't-know codes are removed using each cycle's own codebook, becaus
    - Diet, occupational exposures, family history and cancer screening are not modelled.
 6. **Crude exposure measurement.** There is no information on potency, route (smoked or edible), product type or mg THC. Lifetime exposure is approximated, and the joint-year proxy uses category midpoints and an arbitrary cap.
 7. **Reverse causation is only partly addressed.** First-use timing cannot detect people who resumed or increased use after diagnosis.
-8. **Missing data.** Complete-case analysis. The income-to-poverty ratio is the main source of missingness (≈8%), and no imputation is performed.
+8. **Missing data.** Complete-case analysis. The income-to-poverty ratio is the main source of missingness (≈8%), and no imputation is performed. A sensitivity model coding missing income as its own category changes the headline from OR 1.19 (95% CI 0.96–1.47) to OR 1.28 (95% CI 1.03–1.59), so the headline conclusion is sensitive to this choice (NHANES Explorer → Missing income).
 9. **Cervical cancer self-report.** Self-reported "cervical cancer" may include treated pre-cancerous lesions. This has not been verified within this project, so results excluding cervical cancer are shown alongside.
 10. **Multiple comparisons.** Hundreds of models are shown on purpose, to display variability. No single model should be singled out because its CI excludes 1.
 11. **Literature map ≠ meta-analysis.** Published estimates differ in exposure definition, comparison group, effect measure, population and adjustment. NASEM grades date from 2017; later studies have not been graded by NASEM.
-12. **Ecological context.** The Policy Context tab is descriptive. Changes in laws or potency over time cannot be linked to cancer risk in these data.
+12. **Ecological context.** The Policy Context tab is descriptive. Changes in laws or potency over time cannot be linked to cancer in these data. Potency figures come from DEA-seized illicit herbal cannabis and **do not represent products sold in state-legal markets**. Law years are as listed by NCSL (year of the statute or ballot measure, not the effective date); "medical use law" means a comprehensive program by NCSL's definition, so low-THC/CBD-only programs are not counted (e.g. Georgia counts from SB 220, 2026, which converted its low-THC oil program).
+13. **Evidence-table exclusions.** Gallagher et al. 2024 (*JAMA Otolaryngol Head Neck Surg*) has a published "Error in Abstract" correction whose text could not be retrieved, so its four estimates are marked UNVERIFIED and are not shown. Direction labels in the Evidence Map ("positive association", "inverse association", "no clear association") describe confidence intervals, not causal effects.
 
-## 8. Reproduce
+## 9. Reproduce
 
 ```sh
 git clone <repo> && cd cannabis-cancer-dashboard
@@ -158,13 +170,13 @@ Core R packages: survey 4.5, haven 2.5.5, dplyr 1.2.1, jsonlite 2.0.0, xml2 1.6.
 
 Front end: Vite 8.1.7, TypeScript 6.0.3, Observable Plot 0.6.19, d3 7.9.2.
 
-## 9. How to cite
+## 10. How to cite
 
 > Raj D. *Cannabis & Cancer: What the Evidence Can and Cannot Tell Us* [interactive dashboard]. Independent student project, MS Health Data Science, Dartmouth; 2026. Data: CDC/NCHS NHANES 2005–2018 public-use files.
 
 Please also cite NHANES and the original studies shown in the Evidence Map.
 
-## 10. Methods references
+## 11. Methods references
 
 - Hales CM, Carroll MD, Fryar CD, Ogden CL. Prevalence of obesity and severe obesity among adults: United States, 2017–2018. NCHS Data Brief No. 360. 2020.
 - Mitchell W, Bhatia R, Zebardast N. Retrospective cross-sectional analysis of the changes in marijuana use in the USA, 2005–2018. *BMJ Open*. 2020;10:e037905. doi:10.1136/bmjopen-2020-037905
