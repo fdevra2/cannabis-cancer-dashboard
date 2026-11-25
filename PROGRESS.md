@@ -106,3 +106,35 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 
 ### UNVERIFIED / to check
 - The joint-year proxy's thresholds (<5, 5–19.9, ≥20) were chosen from the distribution among regular users (median 6.3), not from the literature.
+
+---
+
+## Phase C — Evidence table (2026-11-25)
+
+### Built
+- `data/literature_sources.csv` (21 DOIs) → `analysis/R/literature_fetch.R` archives each record from Europe PMC (abstract; open-access full text when available) or Crossref, plus the official NASEM 2017 committee-conclusions PDF, in `data/raw/literature/` (gitignored, rebuilt by `make data`).
+- `data/evidence.csv`: 39 rows (38 VERIFIED, 1 UNVERIFIED) covering lung (8), head & neck/oral (15), esophageal (1), testicular germ cell (10), bladder (1), prostate (1), cervical (1), all sites (2). Columns include site, design, exposure definition, comparison, effect measure, estimate + CI, adjusted-for-tobacco (Y/N/Mixed/NR), DOI, NASEM evidence grade, a **verbatim quote** from the source, status, notes.
+- `data/evidence_grades.csv`: NASEM 2017 grade per site with verbatim wording.
+- `analysis/R/evidence_export.R` → `site/public/data/evidence.json` (VERIFIED rows only).
+- `analysis/tests/testthat/test-evidence.R`.
+
+### Verified
+- **Every row has a DOI** that was fetched (test).
+- **Every VERIFIED row's quote appears verbatim in the archived abstract/full text, and the estimate, lower and upper CI values appear in that quote** (test, 38/38).
+- **NASEM grades** (5-1 lung: moderate evidence of no association; 5-2 head & neck: moderate evidence of no association; 5-3 non-seminoma TGCT: limited evidence of association; 5-4 esophageal and 5-5 prostate/cervical/bladder: insufficient) match the official NAP conclusions PDF verbatim (test).
+- Findings in every direction: 16 higher risk, 4 lower risk, 18 no clear association (rule: CI entirely above 1 / entirely below 1 / includes 1).
+- The three recent meta-analyses you named were found and verified:
+  - **Oral cancer, J Ethn Subst Abuse 2025** (Ibrahim Mohammad et al., doi:10.1080/15332640.2025.2581692): pooled OR 0.659 (0.500–0.869), case-control only.
+  - **Testicular GCT** (Kardoust Parizi et al., *BJU Int*, doi:10.1111/bju.70062; Europe PMC lists 2026): current use OR 1.62 (1.13–2.31); ≥10 years 1.68 (1.19–2.36).
+  - **Lung, Karimi et al.** (*Addict Health* 2026, doi:10.34172/ahj.1710): cohort studies ES 2.06 (1.04–4.07); case-control 1.16 (0.71–1.88).
+  - Also found: Jan et al. 2026 (*Health Sci Rep*) oral-cancer meta-analysis, pooled OR 0.481 overall but 2.51 (0.244–25.823) in cohort studies.
+
+### UNVERIFIED (kept off the site)
+- **A02** Sidney et al. 1997, all-site RR for men: the abstract prints the CI as "0.7-12" (apparently a typo for 1.2). Excluded because the number cannot be confirmed from the source text.
+
+### Judgment calls
+- Quotes come from abstracts unless a number appears only in the open-access full text (Ghasemiesfe 2019: HNSCC 1.26, oral 1.22, ever-use TGCT 1.11).
+- Multiple estimates per study are separate rows (e.g. Gallagher 2024 by subsite) and are labelled with exposure/comparison so they are not double-counted as independent studies.
+- Meta-analyses are marked "Mixed" for tobacco adjustment (component studies vary).
+- **Gallagher et al. 2024** (*JAMA Otolaryngol*) has a published "Error in Abstract" correction (doi:10.1001/jamaoto.2025.0242). Its text is only available as a PDF I could not retrieve. The current PubMed abstract shows the same RRs used here.
+- Text normalization for matching strips only known formatting tags, because abstracts contain literal "<" (e.g. "<or=55 yrs", "10-<20 years"). A naive HTML parse silently dropped text; the verbatim test caught it.

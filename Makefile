@@ -8,9 +8,10 @@ R := Rscript
 
 all: data harmonize analysis test site-build
 
-data:            ## download NHANES files + codebooks, verify checksums, parse codebooks
+data:            ## download NHANES files + codebooks (checksums verified), parse codebooks, fetch literature
 	$(R) analysis/R/download.R
 	$(R) analysis/R/codebook.R
+	$(R) analysis/R/literature_fetch.R
 
 harmonize: data/derived/nhanes_pooled.rds
 
@@ -20,6 +21,7 @@ data/derived/nhanes_pooled.rds: analysis/R/harmonize.R analysis/R/config.R data/
 analysis: harmonize   ## all estimates -> site/public/data/*.json
 	$(R) analysis/R/prevalence.R
 	$(R) analysis/R/models.R
+	$(R) analysis/R/evidence_export.R
 
 test:            ## R validation + unit tests
 	$(R) analysis/tests/run_tests.R
