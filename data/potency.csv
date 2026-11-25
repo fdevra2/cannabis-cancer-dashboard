@@ -1,0 +1,6 @@
+year,thc_pct,approximate,series,doi,quote
+1995,4,TRUE,"ElSohly et al. 2016 (DEA seizures, 1995–2014)",10.1016/j.biopsych.2016.01.004,from ~4% in 1995 to ~12% in 2014
+2014,12,TRUE,"ElSohly et al. 2016 (DEA seizures, 1995–2014)",10.1016/j.biopsych.2016.01.004,from ~4% in 1995 to ~12% in 2014
+2009,9.75,FALSE,"ElSohly et al. 2021 (DEA seizures, 2009–2019)",10.1016/j.bpsc.2020.12.016,"from 9.75% in 2009 to 14.88% in 2018 and 13.88% in 2019"
+2018,14.88,FALSE,"ElSohly et al. 2021 (DEA seizures, 2009–2019)",10.1016/j.bpsc.2020.12.016,"from 9.75% in 2009 to 14.88% in 2018 and 13.88% in 2019"
+2019,13.88,FALSE,"ElSohly et al. 2021 (DEA seizures, 2009–2019)",10.1016/j.bpsc.2020.12.016,"from 9.75% in 2009 to 14.88% in 2018 and 13.88% in 2019"

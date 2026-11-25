@@ -40,3 +40,28 @@ export function loadData<T>(name: string): Promise<DataFile<T>> {
   }
   return cache.get(name) as Promise<DataFile<T>>;
 }
+
+export interface GridRow {
+  outcome: string; exposure: string; sample: string; blocks: string; n_blocks: number;
+  or: number; lcl: number; ucl: number; log_or: number; se: number; df: number;
+  n: number; cases: number; exp_cases: number; unexp_cases: number; exp_n: number; unexp_n: number;
+  flag: "ok" | "imprecise";
+}
+export interface HpvRow {
+  subsample: string; subsample_label: string; outcome: string; exposure: string; set: string;
+  or: number; lcl: number; ucl: number; df: number; n: number; cases: number; exp_cases: number; unexp_cases: number;
+  flag: "ok" | "imprecise";
+}
+export interface DoseRow {
+  exposure: string; outcome: string; set: string; level: string; level_order: number;
+  or: number; lcl: number; ucl: number; df: number; n: number; level_n: number; level_cases: number;
+  ref_n: number; ref_cases: number; flag: "ok" | "imprecise";
+}
+export interface TimingRow extends Proportion { count: number | null }
+export interface EvidenceRow {
+  id: string; site_group: string; cancer_site: string; study: string; year: number; design: string; population: string;
+  exposure_definition: string; comparison: string; effect_measure: string; estimate: number; lcl: number; ucl: number;
+  direction: string; adjusted_for_tobacco: string; adjustment_notes: string; evidence_grade: string; doi: string;
+  source_text: string; quote: string; status: string; notes: string; journal: string; authors: string; title: string;
+}
+export interface GradeRow { site_group: string; nasem_conclusion: string; grade_category: string; grade_short: string; quote_header: string; quote_item: string; doi: string }

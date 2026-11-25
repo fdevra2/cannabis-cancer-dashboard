@@ -138,3 +138,37 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 - Meta-analyses are marked "Mixed" for tobacco adjustment (component studies vary).
 - **Gallagher et al. 2024** (*JAMA Otolaryngol*) has a published "Error in Abstract" correction (doi:10.1001/jamaoto.2025.0242). Its text is only available as a PDF I could not retrieve. The current PubMed abstract shows the same RRs used here.
 - Text normalization for matching strips only known formatting tags, because abstracts contain literal "<" (e.g. "<or=55 yrs", "10-<20 years"). A naive HTML parse silently dropped text; the verbatim test caught it.
+
+---
+
+## Phase D — Front-end tabs (2026-11-25)
+
+### Built (all live on the dev server, http://127.0.0.1:5173/)
+- **Overview:** 5 plain-language takeaway cards, each linked to its evidence. **Every number on the card is computed from the data files at load time**, not typed in.
+- **Evidence Map:** forest plot per cancer site (log scale; diamonds = meta-/pooled analyses), with filters for design, tobacco adjustment and publication year range. Each site has a NASEM 2017 grade badge. Hover shows citation and DOI; there is a data table and a DOI reference list per site, and a "map, not a meta-analysis" caveat.
+- **NHANES Explorer:**
+  - ★ confounding toggle: outcome/exposure/sample selectors and 4 covariate-block checkboxes; hero OR + CI, n, cases, E-value; cumulative-adjustment chart; button to send the estimate to the E-value calculator;
+  - ★ specification curve: 192 models per outcome, with an indicator panel; the toggle's current selection is highlighted;
+  - ★ reverse-causation lens: segmented bars of when survivors started (before/same year/after diagnosis), ORs re-estimated after exclusions, current use by years since diagnosis;
+  - HPV sensitivity panels;
+  - prevalence explorer (11 measures × 7 breakdowns) and the ever-use-by-cycle chart.
+  - The survivorship-bias caveat (addition 3) appears at the top of the tab and in the NHANES chart notes.
+- **Measuring Exposure:** share counted as users under four definitions; ORs by definition (crude vs fully adjusted); dose–response by days used and by joint-year proxy; "what surveys miss" cards; a CEI paragraph citing two verified 2026 papers.
+- **Causal Reasoning:** keyboard-accessible DAG (11 factors: confounders, combustion pathway, medical use after diagnosis, survival/selection, measurement), with a detail panel. E-value calculator with presets (NHANES ORs and key published estimates), rare/common-outcome OR handling, and a bias curve.
+- **Policy Context:** cumulative number of states with medical / adult-use laws by year of the law (NCSL Table 1), with the NHANES years shaded; THC potency of DEA-seized cannabis (ElSohly et al. 2016, 2021).
+- **Methods & Limitations:** renders `docs/methods.md` (one source for repo docs and site), with 12 numbered limitations and reproduce/cite instructions.
+- **AI in Health Research:** placeholder until Phase E.
+- Pipeline additions: `analysis/R/policy.R` → `data/policy_ncsl.csv`, `site/public/data/policy.json`; `data/potency.csv`; `test-policy.R`.
+
+### Verified
+- `tsc`, `vitest` and `vite build` pass; all R tests pass (incl. potency quotes verbatim in abstracts; NCSL years present in NCSL's own text; spot checks CA 1996 medical, CO and WA 2012 adult use).
+- Every tab screenshotted at 1280px (and key tabs at 400px, light and dark); no page errors.
+- Methods citations verified against PubMed/Europe PMC (VanderWeele & Ding 2017;167(4):268–274; Simonsohn et al. 2020;4(11):1208–1214; Parker et al. 2017, Vital Health Stat 2(175):1–22).
+- Text claims such as "intervals overlap" or "rise across categories" are computed from the data; two hard-coded versions were found and replaced.
+
+### Judgment calls
+- **Policy timeline uses years, not exact effective dates.** NCSL Table 1 gives the year of each statute or ballot measure. Exact effective dates would need state-by-state primary-source checks, which were not done, so they are not shown. The chart counts the 41 states in NCSL's table. DC (NCSL note: 1998 initiative "blocked") is flagged and listed in the table only; territories are listed but not charted. NCSL page "Updated September 02, 2026"; it lists Georgia SB 220 (2026).
+- **Potency** shows only the abstract-stated values (2 + 3 points), from DEA-seized illicit cannabis. It is labelled as not representative of legal retail products. The 2024 regional paper (Front Public Health) was fetched, but its abstract gives no national trend numbers, so it is not charted.
+- **Overview card 2** says tobacco is "a major confounder", not "the biggest". In these models tobacco moves the OR more than any other block, but other confounders are unmeasured.
+- **CEI wording:** the 2026 *Drug Alcohol Depend* title says "Cannabis Exposure **Index**" but its abstract spells out "Cannabis Exposure **Inventory**". The site uses the title wording; please confirm the preferred name.
+- Methods are rendered from Markdown with `marked` 18.2.0 (trusted repo file; DOIs auto-linked).

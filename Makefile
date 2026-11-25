@@ -22,6 +22,7 @@ analysis: harmonize   ## all estimates -> site/public/data/*.json
 	$(R) analysis/R/prevalence.R
 	$(R) analysis/R/models.R
 	$(R) analysis/R/evidence_export.R
+	$(R) analysis/R/policy.R
 
 test:            ## R validation + unit tests
 	$(R) analysis/tests/run_tests.R
