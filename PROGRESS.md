@@ -225,3 +225,13 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 - CI does not re-run the NHANES pipeline (~140 MB of downloads and R). It builds only the front end from committed outputs, and the local `make all` is the reproducibility path. This is stated in the workflow and the README.
 - **Pre-publication check:** no secrets tracked (`.env` ignored; no key patterns found). `data/labels/validation_template.csv` contains 200 PubMed abstracts. It is now gitignored and was removed from local git history before the first push (`git filter-branch`, verified 0 commits contain it). It is regenerated identically by `analysis/R/ai_triage.R` (seeded). Your completed labels file is also gitignored; only the benchmark results (`ai_triage.json`) are published.
 - **Waiting on you:** GitHub login (`gh auth login`), then repo creation, push, Pages setup and live-site check.
+
+### Deployed (2026-11-25)
+- Repo (public): https://github.com/fdevra2/cannabis-cancer-dashboard
+- Live site: https://fdevra2.github.io/cannabis-cancer-dashboard/ (GitHub Pages via Actions; push and manual runs both succeeded).
+- Live checks: page and all 10 data files return HTTP 200; axe audit on the live URL shows 0 violations across 8 tabs × 2 themes; keyboard reachability passes; no page errors on any tab.
+- Before the first push:
+  - byline changed to "Dev Raj · MS Health Data Science, Dartmouth · independent student project", and the lab name removed;
+  - history rewritten so no commit contains the lab name, your Dartmouth email or the abstract-containing template;
+  - all commits authored with your GitHub no-reply address, set for this repo only.
+- GitHub CLI needed the extra `workflow` scope to push `.github/workflows/pages.yml`; you approved it.

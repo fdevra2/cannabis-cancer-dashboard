@@ -4,6 +4,8 @@ An interactive dashboard on what the cannabis–cancer literature and U.S. surve
 
 *Dev Raj · MS Health Data Science, Dartmouth · independent student project. Not an official Dartmouth site.*
 
+**Live site:** https://fdevra2.github.io/cannabis-cancer-dashboard/
+
 ## Reproduce
 
 Requirements: R 4.6.1 (packages pinned in `renv.lock`), Node 24 LTS (`.nvmrc`), `make`.
