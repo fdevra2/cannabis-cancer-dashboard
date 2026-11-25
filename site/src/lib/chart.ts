@@ -42,7 +42,11 @@ export function responsive(host: HTMLElement, render: (width: number) => Element
     const w = Math.max(300, Math.floor(host.clientWidth || 720));
     if (!force && Math.abs(w - last) < 8) return;
     last = w;
-    host.replaceChildren(render(w));
+    const node = render(w);
+    // The wrapper (role="img" + aria-label + data table) carries the accessible description;
+    // hide Plot's internal SVG structure from assistive technology.
+    node.setAttribute("aria-hidden", "true");
+    host.replaceChildren(node);
   };
   const ro = new ResizeObserver(() => draw());
   ro.observe(host);

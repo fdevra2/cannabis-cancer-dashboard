@@ -232,7 +232,7 @@ function reverseSection(rc: TimingRow[], grid: GridRow[], meta: GridMeta) {
       "People diagnosed with cancer may start using cannabis to manage symptoms. If so, cancer would cause cannabis use rather than the reverse. NHANES records the age when people first tried cannabis (and, from 2009, the age they started using it regularly) and the age at their first cancer diagnosis, so we can see who started after diagnosis."));
   const timing = rc.filter((r) => r.group_var === "timing");
   const lv = ["Before diagnosis", "Same year", "After diagnosis"];
-  const colors: Record<string, string> = { "Before diagnosis": "var(--muted-mark)", "Same year": "var(--series-3)", "After diagnosis": "var(--series-2)" };
+  const colors: Record<string, string> = { "Before diagnosis": "var(--seg-before)", "Same year": "var(--series-3)", "After diagnosis": "var(--series-2)" };
   const bars = el("div", { class: "seg-bars" });
   for (const m of ["first_use_timing", "regular_timing"]) {
     const rs = lv.map((l) => timing.find((r) => r.measure === m && r.group === l)!);

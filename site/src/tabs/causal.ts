@@ -91,7 +91,7 @@ function dagFigure(): HTMLElement {
     g.setAttribute("class", `node role-${n.role}`);
     g.setAttribute("tabindex", "0");
     g.setAttribute("role", "button");
-    g.setAttribute("aria-label", `${n.title}`);
+    g.setAttribute("aria-label", `${n.label.join(" ")}: ${ROLE_LABEL[n.role].toLowerCase()}`);
     g.dataset.id = n.id;
     const rect = document.createElementNS(NS, "rect");
     rect.setAttribute("x", String(n.x - W / 2)); rect.setAttribute("y", String(n.y - H / 2));
@@ -100,7 +100,7 @@ function dagFigure(): HTMLElement {
     n.label.forEach((line, i) => {
       const t = document.createElementNS(NS, "text");
       t.setAttribute("x", String(n.x)); t.setAttribute("y", String(n.y + (i - (n.label.length - 1) / 2) * 17 + 5));
-      t.setAttribute("text-anchor", "middle"); t.textContent = line;
+      t.setAttribute("text-anchor", "middle"); t.textContent = i < n.label.length - 1 ? `${line} ` : line;
       g.append(t);
     });
     g.addEventListener("click", () => show(n));

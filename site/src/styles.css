@@ -15,6 +15,8 @@
   --series-2: #f47230;
   --series-3: #00b894;
   --muted-mark: #9a9a9a;      /* de-emphasized / reference marks */
+  --seg-before: #1b64be;      /* timing bar: before diagnosis */
+  --seg-ink: #ffffff;         /* label inside that segment */
   --warn-bg: #fff6e0;
   --warn-ink: #6b4a00;
   --focus: #1b64be;
@@ -37,7 +39,9 @@
     --accent-mark: #338ced;
     --series-2: #e76624;
     --series-3: #00a888;
-    --muted-mark: #7a7a7a;
+    --muted-mark: #6e6e6e;
+    --seg-before: #338ced;
+    --seg-ink: #0b0b0b;
     --warn-bg: #2d2513;
     --warn-ink: #f3d38a;
     --focus: #84b9f3;
@@ -158,7 +162,7 @@ table.data thead th { color: var(--ink-3); font-weight: 600; }
 .seglabel .hint { color: var(--ink-3); }
 .segbar { display: flex; height: 28px; gap: 2px; }
 .seg { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 0.5rem; min-width: 2px; }
-.seg span { color: #fff; font-size: 0.8rem; font-weight: 600; }
+.seg span { color: var(--seg-ink); font-size: 0.8rem; font-weight: 600; }
 
 /* DAG */
 .dag-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); gap: 1rem; align-items: start; }
