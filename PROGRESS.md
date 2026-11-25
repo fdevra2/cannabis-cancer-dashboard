@@ -51,3 +51,23 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 ### UNVERIFIED / for you to check
 - Self-reported "cervical cancer" in NHANES may include treated precancer (CIN); results that exclude cervical cancer address this partly. Worth a sentence in Methods. (Not yet sourced; no claim on the site until it is.)
 - `MCD240A–C` (2017–2018) are bottom-coded at 16 and `DUQ210` at 11 in that cycle; this affects the reverse-causation comparison only for very young ages.
+
+---
+
+## Site skeleton (after Phase A)
+
+### Built
+- `site/`: Vite 8.1.7 + TypeScript 6.0.3 + Observable Plot 0.6.19 + d3 7.9.2 (exact pins; all published ≥2 weeks before build). Node 24.22.3 LTS (`site/.nvmrc`), installed to `~/.local/opt/node` from nodejs.org (SHA-256 verified).
+- Hash-routed tabs (`#overview`, `#evidence`, `#nhanes`, `#exposure`, `#causal`, `#ai`, `#policy`, `#methods`); `base: "./"` so the build works from any GitHub Pages path.
+- Shared figure component: title, one-sentence "What this shows" caption, plot with `role="img"` + alt text, data table (`<details>`), notes. Charts re-render on resize and on light/dark change.
+- First real chart: weighted ever-use prevalence by cycle with Korn–Graubard CIs (NHANES Explorer).
+- `site/tests/data-contract.test.ts` (vitest): every JSON in `public/data` has meta + data; CIs bracket estimates; reliability status is valid.
+- `site/scripts/shot.mjs`: Playwright screenshots used to check layout at 1280px and 400px, light and dark.
+
+### Verified
+- `tsc --noEmit`, `vitest`, `vite build` pass. Visual check at desktop and phone widths, light and dark.
+- The "intervals overlap" caption is computed from the data, not hard-coded.
+
+### Judgment calls
+- Prevalence charts use a 0–100% axis so stable proportions aren't visually exaggerated.
+- Tabs are navigation links with `aria-current="page"` (each tab is a page), not an ARIA tablist.

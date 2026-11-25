@@ -1,0 +1,29 @@
+{
+  "name": "cannabis-cancer-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.22.3 <25"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@observablehq/plot": "0.6.19",
+    "d3": "7.9.2"
+  },
+  "devDependencies": {
+    "@types/d3": "7.4.3",
+    "@types/node": "24.10.1",
+    "axe-core": "4.14.0",
+    "playwright": "1.65.0",
+    "typescript": "6.0.3",
+    "vite": "8.1.7",
+    "vitest": "5.1.0"
+  }
+}
