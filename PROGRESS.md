@@ -71,3 +71,38 @@ Plan: measured HPV enters as a sensitivity block on its own subsample (oral HPV 
 ### Judgment calls
 - Prevalence charts use a 0–100% axis so stable proportions aren't visually exaggerated.
 - Tabs are navigation links with `aria-current="page"` (each tab is a page), not an ARIA tablist.
+
+---
+
+## Phase B — NHANES analyses (2026-11-25)
+
+### Built
+- `analysis/R/analysis_vars.R`: analysis variables, covariate blocks, outcome and exposure definitions.
+- `analysis/R/prevalence.R` → `prevalence.json` (11 measures × overall/cycle/age/sex/race/cannabis status/smoking status), `reverse_causation.json`, `prev_ever_by_cycle.json`.
+- `analysis/R/models.R` → `models_grid.json` (768 survey-weighted logistic models: 4 outcomes × 4 exposure definitions × 3 samples × 16 covariate sets), `models_hpv.json` (HPV sensitivity models on their own subsamples), `models_dose.json` (categorical dose-response).
+- Tests: `test-models.R` (grid shape; identical people across covariate sets; crude svyglm OR = weighted 2×2 OR; reverse-causation samples remove only cases), `test-bmjopen-crosscheck.R`.
+
+### Verified
+- **External cross-check (exact):** lifetime marijuana use by cycle reproduces Mitchell, Bhatia & Zebardast, *BMJ Open* 2020;10:e037905 (doi:10.1136/bmjopen-2020-037905), Table 1. All 7 cycles match to 1 decimal (61.5, 60.5, 57.2, 59.9, 59.2, 57.3, 60.9) and Ns match exactly. Their Ns equal the DUQ-answered counts, which confirms that their "50–69" age group actually contains no one older than 59.
+- Every prevalence estimate in `prevalence.json` and `reverse_causation.json` meets the NCHS standards (0 suppressed, 0 review).
+- Crude survey OR equals the OR from weighted proportions (tolerance 1e-6).
+- All R tests pass (design, harmonize, manifest, models, NCHS obesity, BMJ Open).
+
+### Key results (ages 20–59, 2005–2018; for the site)
+- Ever-use and any cancer: OR 1.32 (crude) → 1.32 (+demographics) → 1.19 (0.97–1.47) (+tobacco) → 1.19 (0.96–1.47) (all four blocks). Excluding skin + cervical cancers: 1.07–1.13, CIs include 1.
+- Past-30-day use: crude 1.17 → 1.68 after demographics. Confounding by age runs the other way: current users are young, and young people rarely have cancer.
+- Reverse causation: 93.0% of cancer survivors who ever used cannabis started before diagnosis, 1.8% in the same year, 5.3% after. Excluding post-diagnosis initiators: ever-use OR 1.19 → 1.11; regular use 1.44 → 1.25.
+- Women, cervical cancer: ever-use OR 2.48 crude → 1.19 with all four blocks; adding measured vaginal HPV 16/18 changes it little (1.18). Current HPV DNA is a poor marker of the past infection that caused a (treated) cancer, so this does **not** show that HPV is not a confounder.
+- No dose-response gradient across days used or joint-year categories.
+- Tobacco is strongly associated with cannabis: current smoking 32.5% among ever-users vs 10.1% among never-users.
+
+### Judgment calls
+- **Headline exposure contrasts are vs never-users** for every definition (ever, regular, past-30-day, ≥20 joint-years), so the definitions differ in intensity and share a reference group. People in between (e.g. former occasional users in the past-30-day contrast) are left out of that contrast. Dose-response models keep everyone in categories.
+- **Fixed analytic sample per exposure/outcome/sample**: complete cases on all four covariate blocks (n = 20,449 of 22,208 for ever-use; 1,685 lost to missing income-to-poverty ratio). OR movement in the toggle therefore reflects adjustment, not a changing sample. Missing PIR is a limitation (not imputed).
+- **Covariates:** age + age² (centered), sex, race/ethnicity (RIDRETH1), survey cycle; smoking status (never/former/current; no pack-years, so residual confounding by intensity likely); alcohol (none/moderate/heavy); education, PIR (<1, 1–2, 2–4, ≥4), any health insurance.
+- **Precision flag for ORs** (no NCHS standard exists for ORs): "imprecise" if exposed or unexposed cases < 10 or residual df < 8. No headline model is flagged.
+- **Reverse-causation exclusion is outcome-specific:** a case is dropped if use started after the first diagnosis of a cancer that counts toward that outcome (e.g. first non-skin cancer for the skin-excluded outcome). Bug caught by a test and fixed.
+- **ORs use t-based CIs** on the model's residual design df. ORs approximate prevalence ratios only when the outcome is rare; cancer history is ~5%, so they are close.
+
+### UNVERIFIED / to check
+- The joint-year proxy's thresholds (<5, 5–19.9, ≥20) were chosen from the distribution among regular users (median 6.3), not from the literature.

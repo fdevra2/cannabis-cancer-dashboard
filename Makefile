@@ -19,6 +19,7 @@ data/derived/nhanes_pooled.rds: analysis/R/harmonize.R analysis/R/config.R data/
 
 analysis: harmonize   ## all estimates -> site/public/data/*.json
 	$(R) analysis/R/prevalence.R
+	$(R) analysis/R/models.R
 
 test:            ## R validation + unit tests
 	$(R) analysis/tests/run_tests.R

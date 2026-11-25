@@ -170,6 +170,8 @@ harmonize_cycle <- function(s) {
   rmin <- function(m) { r <- suppressWarnings(apply(m, 1, min, na.rm = TRUE)); r[!is.finite(r)] <- NA; r }
   m_nonskin <- agem; m_nonskin[!is.na(typem) & typem %in% SKIN_CODES] <- NA
   m_nonskin_noncerv <- m_nonskin; m_nonskin_noncerv[!is.na(typem) & typem == CERVICAL_CODE] <- NA
+  m_noncerv <- agem; m_noncerv[!is.na(typem) & typem == CERVICAL_CODE] <- NA
+  m_cerv <- agem; m_cerv[is.na(typem) | typem != CERVICAL_CODE] <- NA
 
   cancer <- data.frame(
     SEQN = mcq$SEQN,
@@ -191,6 +193,9 @@ harmonize_cycle <- function(s) {
     cancer_first_type = types[, 1],
     age_dx_first = rmin(agem),
     age_dx_first_nonskin = rmin(m_nonskin),
+    age_dx_first_noncervical = rmin(m_noncerv),
+    age_dx_first_nonskin_noncervical = rmin(m_nonskin_noncerv),
+    age_dx_cervical = rmin(m_cerv),
     n_cancer_types = rowSums(!is.na(types))
   )
   d <- left_join(d, cancer, by = "SEQN")
