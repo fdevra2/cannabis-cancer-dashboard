@@ -66,4 +66,8 @@ export interface EvidenceRow {
 }
 export interface GradeRow { site_group: string; nasem_conclusion: string; grade_category: string; grade_short: string; quote_header: string; quote_item: string; doi: string }
 
-export interface PirRow { exposure: string; outcome: string; approach: "complete_case" | "missing_category"; or: number; lcl: number; ucl: number; df: number; n: number; cases: number; exp_cases: number; n_pir_missing: number }
+export interface PirRow { exposure: string; outcome: string; approach: "complete_case" | "missing_category" | "multiple_imputation"; or: number; lcl: number; ucl: number; df: number; n: number; cases: number; exp_cases: number; n_pir_missing: number }
+
+export interface MiRow { exposure: string; outcome: string; approach: "multiple_imputation"; or: number; lcl: number; ucl: number; df: number; fmi: number; between_within_ratio: number; m: number; n: number; cases: number }
+export interface HeadlineEst { or: number; lcl: number; ucl: number; n?: number; cases?: number; m?: number; evalue?: number; evalue_ci?: number }
+export interface Headline { statement: string; range: string; estimates: { complete_case: HeadlineEst; multiple_imputation: HeadlineEst; missing_indicator: HeadlineEst; demographics_only: HeadlineEst }; spec: { n: number; min: number; max: number; n_ci_excludes_1: number } }

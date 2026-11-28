@@ -14,6 +14,9 @@ for (const scheme of ["light", "dark"]) {
   for (const t of tabs) {
     await page.goto(`${base}#${t}`, { waitUntil: "networkidle" });
     await page.waitForTimeout(300);
+    // a tab that failed to render shows an alert callout: count it as a failure
+    const renderErr = await page.evaluate(() => [...document.querySelectorAll('[role="alert"]')].map((e) => e.textContent).filter((t) => /Could not render/.test(t || "")));
+    if (renderErr.length) { total += renderErr.length; console.log(`[${scheme}] #${t} RENDER ERROR: ${renderErr.join(" | ")}`); }
     // open all <details> so hidden tables are audited too
     await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
     await page.addScriptTag({ content: axeSrc });

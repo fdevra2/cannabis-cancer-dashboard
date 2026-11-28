@@ -1,21 +1,44 @@
-# The headline estimate must be stated identically everywhere it is written by hand.
+# The headline is GENERATED from all three estimates (complete case, multiple imputation, missing-indicator)
+# by analysis/R/headline.R. These tests regenerate it and fail if any document or the site data disagrees.
+withr::with_dir(Sys.getenv("CCD_ROOT"), source("analysis/R/headline.R"))
 root <- Sys.getenv("CCD_ROOT")
-f2 <- function(x) sprintf("%.2f", x)
-fmt <- function(r) sprintf("OR %s (95%% CI %s–%s)", f2(r$or), f2(r$lcl), f2(r$ucl))
-grid <- jsonlite::fromJSON(file.path(root, "site/public/data/models_grid.json"))$data
-pir <- jsonlite::fromJSON(file.path(root, "site/public/data/models_pir.json"))$data
-H <- fmt(grid[grid$exposure == "x_ever" & grid$outcome == "cancer_any" & grid$sample == "main" & grid$blocks == "demo+tobacco+alcohol+ses", ])
-P <- fmt(pir[pir$exposure == "x_ever" & pir$outcome == "cancer_any" & pir$approach == "missing_category", ])
 read <- function(f) paste(readLines(file.path(root, f), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+h <- withr::with_dir(root, build_headline())
 
-test_that("headline string matches the model output in README, methods and PROGRESS", {
-  for (f in c("README.md", "docs/methods.md", "PROGRESS.md")) {
-    expect_true(grepl(H, read(f), fixed = TRUE), info = paste(f, H))
-    expect_true(grepl(P, read(f), fixed = TRUE), info = paste(f, P))
+test_that("every document contains exactly the generated headline block", {
+  for (f in HEADLINE_DOCS) {
+    blk <- extract_block(read(f))
+    expect_false(is.na(blk), info = paste(f, "has no HEADLINE markers"))
+    expect_identical(blk, h$block, info = paste(f, "disagrees with the generated headline (run Rscript analysis/R/headline.R)"))
   }
-  # complete-case headline equals the PIR file's complete-case row (same model)
-  cc <- pir[pir$exposure == "x_ever" & pir$outcome == "cancer_any" & pir$approach == "complete_case", ]
-  expect_equal(fmt(cc), H)
+})
+
+test_that("site headline.json matches the generated statement and estimates", {
+  j <- jsonlite::fromJSON(file.path(root, "site/public/data/headline.json"))$data
+  expect_identical(j$statement, h$statement)
+  for (k in c("complete_case", "multiple_imputation", "missing_indicator"))
+    expect_equal(j$estimates[[k]]$or, h$estimates[[k]]$or, info = k)
+})
+
+test_that("the statement is derived from all three estimates", {
+  ors <- c(h$estimates$complete_case$or, h$estimates$multiple_imputation$or, h$estimates$missing_indicator$or)
+  lo <- round(min(ors), 1); hi <- round(max(ors), 1)
+  expect_true(grepl(if (lo == hi) sprintf("OR ~%.1f", lo) else sprintf("OR ~%.1f–%.1f", lo, hi), h$statement, fixed = TRUE))
+  expect_true(grepl("modest association", h$statement) && grepl("attenuated by smoking adjustment", h$statement) &&
+              grepl("not robust across analytic choices", h$statement))
+  expect_false(grepl("no clear association", h$statement))
+  # each estimate line (with E-values) appears in the block
+  for (k in c("complete_case", "multiple_imputation", "missing_indicator"))
+    expect_true(grepl(est_str(as.data.frame(h$estimates[[k]][c("or", "lcl", "ucl")])), h$block, fixed = TRUE), info = k)
+  # attenuation: demographics-only OR is larger than the fully adjusted complete-case OR
+  expect_gt(h$estimates$demographics_only$or, h$estimates$complete_case$or)
+})
+
+test_that("E-values follow VanderWeele & Ding and use the CI limit closest to 1", {
+  expect_equal(evalue_rr(2), 2 + sqrt(2))
+  expect_equal(evalue_rr(0.5), evalue_rr(2))
+  expect_equal(evalue_ci(1.19, 0.96, 1.47), 1)
+  expect_equal(evalue_ci(1.28, 1.03, 1.59), evalue_rr(1.03))
 })
 
 test_that("no 'increased risk' wording in site text or docs we wrote", {

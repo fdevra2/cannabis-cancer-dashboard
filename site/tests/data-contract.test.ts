@@ -52,3 +52,15 @@ describe("E-value", async () => {
     expect(evalue(4, 2, 8, "OR", true).point).toBeCloseTo(evalueRR(2), 10); // sqrt(OR) for common outcomes
   });
 });
+
+describe("headline.json", () => {
+  it("has a statement and object-shaped estimates the Overview can read", () => {
+    const j = JSON.parse(readFileSync(join(dir, "headline.json"), "utf8")).data;
+    expect(j.statement).toMatch(/modest association/);
+    for (const k of ["complete_case", "multiple_imputation", "missing_indicator", "demographics_only"]) {
+      expect(Array.isArray(j.estimates[k])).toBe(false);
+      expect(typeof j.estimates[k].or).toBe("number");
+    }
+    for (const k of ["complete_case", "multiple_imputation", "missing_indicator"]) expect(typeof j.estimates[k].evalue).toBe("number");
+  });
+});

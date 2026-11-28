@@ -51,7 +51,7 @@ export async function renderExposure(root: HTMLElement) {
     el("p", { class: "sub" }, "Each definition is compared with never-users. Grey: crude. Blue: adjusted for demographics, tobacco, alcohol and socioeconomic factors."));
   const st = { outcome: "cancer_any", dose: "mj_days_cat", set: "all" };
   const defHost = el("div");
-  sec2.append(controlRow(select("Outcome", Object.entries(outcomes).map(([value, label]) => ({ value, label })), st.outcome, (v) => { st.outcome = v; drawDefs(); drawDose(); })), defHost);
+  sec2.append(controlRow(select("Outcome", Object.entries(outcomes).map(([value, label]) => ({ value, label })), st.outcome, (v) => { st.outcome = v; drawDefs(); drawDose(); drawJyNote(); })), defHost);
   root.append(sec2);
   function drawDefs() {
     const fr: ForestRow[] = [];
@@ -76,10 +76,11 @@ export async function renderExposure(root: HTMLElement) {
   const sec3 = el("section", { class: "section" }, el("h3", {}, "Is there a dose–response gradient?"),
     el("p", { class: "sub" }, "If cannabis caused cancer, heavier or longer use would usually show stronger associations. Each category is compared with never-users."));
   const doseHost = el("div");
+  const jyNote = el("div", { class: "caveat", role: "note" });
   sec3.append(controlRow(
     select("Exposure measure", [{ value: "mj_days_cat", label: "Days used in past 30 days" }, { value: "mj_jy_cat", label: "Joint-year proxy, data-driven cut-offs (<5, 5–19.9, ≥20)" }, { value: "mj_jy_lit_cat", label: "Joint-year proxy, literature cut-offs (≥1, ≥10)" }], st.dose, (v) => { st.dose = v; drawDose(); }),
     select("Adjusted for", [{ value: "crude", label: "Nothing (crude)" }, { value: "demo", label: "Demographics" }, { value: "demo_tobacco", label: "Demographics + tobacco" }, { value: "all", label: "All four groups" }], st.set, (v) => { st.set = v; drawDose(); }),
-  ), doseHost);
+  ), doseHost, jyNote);
   root.append(sec3);
   function drawDose() {
     const rs = dose.data.filter((r) => r.exposure === st.dose && r.outcome === st.outcome && r.set === st.set).sort((a, b) => a.level_order - b.level_order);
@@ -111,7 +112,20 @@ export async function renderExposure(root: HTMLElement) {
         ...(st.dose === "mj_jy_lit_cat" ? ["Literature cut-offs: ≥1 joint-year is the “ever use” definition in Ghasemiesfe et al. 2019 (doi:10.1001/jamanetworkopen.2019.16318); ≥10 joint-years is a category used by Zhang et al. 2015 (doi:10.1002/ijc.29036). Ever-users who never used regularly have 0 joint-years and fall in “<1”."] : [])],
     }));
   }
-  drawDefs(); drawDose();
+  function drawJyNote() {
+    const lv = (e: string) => dose.data.filter((r) => r.exposure === e && r.outcome === st.outcome && r.set === "all").sort((a, b) => a.level_order - b.level_order);
+    const mono = (rs: DoseRow[]) => rs.every((r, i) => i === 0 || r.or >= rs[i - 1].or);
+    const dd = lv("mj_jy_cat"), lit = lv("mj_jy_lit_cat");
+    const fmt = (rs: DoseRow[]) => rs.map((r) => `${r.level.replace(/^Regular, /, "")} ${f2(r.or)}`).join("; ");
+    const neither = !mono(dd) && !mono(lit);
+    jyNote.replaceChildren(
+      el("strong", {}, neither ? "No dose–response gradient in the joint-year ORs. " : "Joint-year ORs: check the gradient carefully. "),
+      `Fully adjusted, ${outcomes[st.outcome].toLowerCase()}: data-driven cut-offs ${mono(dd) ? "rise" : "do not rise steadily"} (${fmt(dd)}); literature cut-offs ${mono(lit) ? "rise" : "do not rise steadily"} (${fmt(lit)}). `,
+      neither
+        ? "If smoked cannabis caused cancer, larger cumulative exposure would usually show stronger associations. The absence of a gradient argues against a strong dose-dependent effect in these data and is more consistent with the overall association reflecting confounding, selection or chance. It cannot rule out an effect: the joint-year proxy is crude (no potency, route or product), heavy use is rare, case numbers per category are small, and cancers in people under 60 may not reflect long-term exposure."
+        : "Even where point estimates rise, overlapping confidence intervals and the crude exposure measure mean this is weak evidence of a dose-dependent effect.");
+  }
+  drawDefs(); drawDose(); drawJyNote();
 
   // 4) What NHANES cannot measure
   root.append(el("section", { class: "section" },

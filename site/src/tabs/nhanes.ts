@@ -1,5 +1,5 @@
 import * as Plot from "@observablehq/plot";
-import { loadData, type Proportion, type GridRow, type HpvRow, type TimingRow, type PirRow } from "../lib/data";
+import { loadData, type Proportion, type GridRow, type HpvRow, type TimingRow, type PirRow, type MiRow } from "../lib/data";
 import { figure, cssVar, plotStyle, shortCycle, responsive } from "../lib/chart";
 import { forestPlot, type ForestRow } from "../lib/forest";
 import { el } from "../lib/dom";
@@ -15,7 +15,7 @@ const f2 = (x: number) => x.toFixed(2);
 export const SURVIVORSHIP =
   "NHANES only includes people who were alive, living in the community and well enough to attend the mobile examination center. People who died of cancer — especially fatal cancers such as lung cancer — are under-represented, so “ever told you had cancer” mostly captures survivors of less lethal cancers.";
 
-interface GridMeta {
+export interface GridMeta {
   blocks: Record<string, string>; outcomes: Record<string, string>; exposures: Record<string, string>; samples: Record<string, string>;
   analytic_sample_rule: string; flag_rule: string; model: string;
 }
@@ -34,7 +34,7 @@ export async function renderNhanes(root: HTMLElement) {
   const meta = grid.meta as unknown as GridMeta;
 
   const nav = el("nav", { class: "legend-inline", "aria-label": "On this page" },
-    el("a", { href: "#nhanes/toggle" }, "Confounding toggle"), el("a", { href: "#nhanes/missing" }, "Missing income"), el("a", { href: "#nhanes/speccurve" }, "Specification curve"),
+    el("a", { href: "#nhanes/toggle" }, "Confounding toggle"), el("a", { href: "#nhanes/missing" }, "Missing data"), el("a", { href: "#nhanes/speccurve" }, "Specification curve"),
     el("a", { href: "#nhanes/reverse" }, "Reverse-causation lens"), el("a", { href: "#nhanes/hpv" }, "HPV sensitivity"),
     el("a", { href: "#nhanes/prevalence" }, "Prevalence"));
   root.append(nav);
@@ -46,8 +46,8 @@ export async function renderNhanes(root: HTMLElement) {
   const changed = () => listeners.forEach((f) => f());
 
   root.append(toggleSection(grid.data, meta, sel, changed, listeners));
-  const pir = await loadData<PirRow>("models_pir.json");
-  root.append(pirSection(pir.data, meta, sel, listeners));
+  const [pir, mi] = await Promise.all([loadData<PirRow>("models_pir.json"), loadData<MiRow>("models_mi.json")]);
+  root.append(pirSection([...pir.data, ...mi.data.map((r) => ({ ...r, exp_cases: 0, n_pir_missing: 0 }))] as unknown as PirRow[], meta, sel, listeners));
   root.append(specCurveSection(grid.data, meta, sel, listeners));
   root.append(reverseSection(rc.data, grid.data, meta));
   root.append(hpvSection(hpv.data, meta));
@@ -156,31 +156,35 @@ function pathFigure(rows: GridRow[], meta: GridMeta, sel: { outcome: string; exp
   });
 }
 
-/* ---------------- Missing income data sensitivity ---------------- */
+/* ---------------- Missing covariate data sensitivity ---------------- */
+const APPROACH: Record<string, string> = { complete_case: "Complete case (main)", multiple_imputation: "Multiple imputation (m = 20)", missing_category: "Missing-indicator category" };
 function pirSection(rows: PirRow[], meta: GridMeta, sel: { outcome: string }, listeners: (() => void)[]) {
   const sec = el("section", { class: "section", id: "nhanes-missing", "aria-labelledby": "pir-h" },
-    el("h3", { id: "pir-h" }, "Sensitivity: missing income data"),
-    el("p", { class: "sub" }, "The main analysis drops people with a missing income-to-poverty ratio (complete case). The alternative keeps them, coding missing income as its own category. Both are fully adjusted; the outcome follows the toggle above."));
+    el("h3", { id: "pir-h" }, "Sensitivity: missing covariate data"),
+    el("p", { class: "sub" }, "Three ways to handle missing covariates (mostly income-to-poverty ratio): complete case (main analysis; drops people with missing values), multiple imputation (m = 20, survey design in the imputation model, pooled by Rubin’s rules), and a missing-indicator category for income. All fully adjusted; the outcome follows the toggle above."));
   const host = el("div");
   sec.append(host);
   const expShort: Record<string, string> = { x_ever: "Ever used", x_regular: "Regular use", x_past30: "Past 30 days", x_heavy: "≥20 joint-years" };
   const draw = () => {
     const rs = rows.filter((r) => r.outcome === sel.outcome);
-    const fr: ForestRow[] = rs.map((r) => ({ key: `${r.exposure}-${r.approach}`, label: `${expShort[r.exposure]}\n${r.approach === "complete_case" ? "Complete case (main)" : "Missing income as a category"}`,
+    const order: Record<string, number> = { complete_case: 0, multiple_imputation: 1, missing_category: 2 };
+    rs.sort((a, b) => Object.keys(expShort).indexOf(a.exposure) - Object.keys(expShort).indexOf(b.exposure) || order[a.approach] - order[b.approach]);
+    const fr: ForestRow[] = rs.map((r) => ({ key: `${r.exposure}-${r.approach}`, label: `${expShort[r.exposure]}\n${APPROACH[r.approach]}`,
       est: r.or, lcl: r.lcl, ucl: r.ucl, emphasis: r.approach !== "complete_case",
       tip: `OR ${f2(r.or)} (95% CI ${f2(r.lcl)}–${f2(r.ucl)})\nn = ${int(r.n)}, cases = ${int(r.cases)}${r.n_pir_missing ? `, incl. ${int(r.n_pir_missing)} with missing income` : ""}` }));
     const ev = (a: string) => rs.find((r) => r.exposure === "x_ever" && r.approach === a)!;
-    const changes = rs.filter((r) => r.approach === "missing_category").filter((m) => {
+    const changes = rs.filter((r) => r.approach === "multiple_imputation").filter((m) => {
       const c = rs.find((r) => r.exposure === m.exposure && r.approach === "complete_case")!;
       return (c.lcl <= 1 && c.ucl >= 1) !== (m.lcl <= 1 && m.ucl >= 1);
     }).map((m) => expShort[m.exposure].toLowerCase());
     host.replaceChildren(figure({
-      title: `Complete case vs missing-income category: ${meta.outcomes[sel.outcome].toLowerCase()}`,
-      what: `For ever-use, the fully adjusted odds ratio is ${f2(ev("complete_case").or)} (95% CI ${f2(ev("complete_case").lcl)}–${f2(ev("complete_case").ucl)}) with complete cases and ${f2(ev("missing_category").or)} (${f2(ev("missing_category").lcl)}–${f2(ev("missing_category").ucl)}) when missing income is kept as a category${changes.length ? `; whether the confidence interval includes 1 changes for ${changes.join(", ")}` : "; neither choice changes whether any interval includes 1"}.`,
+      title: `Complete case vs multiple imputation vs missing-indicator: ${meta.outcomes[sel.outcome].toLowerCase()}`,
+      what: `For ever-use, the fully adjusted odds ratio is ${f2(ev("complete_case").or)} (95% CI ${f2(ev("complete_case").lcl)}–${f2(ev("complete_case").ucl)}) with complete cases, ${f2(ev("multiple_imputation").or)} (${f2(ev("multiple_imputation").lcl)}–${f2(ev("multiple_imputation").ucl)}) with multiple imputation and ${f2(ev("missing_category").or)} (${f2(ev("missing_category").lcl)}–${f2(ev("missing_category").ucl)}) with a missing-income category${changes.length ? `; with multiple imputation, whether the confidence interval includes 1 changes for ${changes.join(", ")}` : "; the choice does not change whether any interval includes 1"}.`,
       alt: "Forest plot comparing complete-case and missing-category models: " + fr.map((r) => `${r.label.replace("\n", ", ")} ${f2(r.est)} (${f2(r.lcl)}–${f2(r.ucl)})`).join("; "),
       render: (w) => forestPlot(fr, w, { domain: [0.5, 5], marginLeft: 320, narrowLabel: "join" }),
-      table: { columns: ["Exposure", "Approach", "OR", "95% CI", "n", "Cases"], rows: rs.map((r) => [expShort[r.exposure], r.approach === "complete_case" ? "Complete case (main)" : "Missing income as a category", f2(r.or), `${f2(r.lcl)}–${f2(r.ucl)}`, int(r.n), int(r.cases)]) },
-      notes: ["A missing-indicator category is a simple sensitivity check, not a fix: it can itself be biased. Multiple imputation was not performed. Grey = complete case; blue = missing-income category."],
+      table: { columns: ["Exposure", "Approach", "OR", "95% CI", "n", "Cases"], rows: rs.map((r) => [expShort[r.exposure], APPROACH[r.approach], f2(r.or), `${f2(r.lcl)}–${f2(r.ucl)}`, int(r.n), int(r.cases)]) },
+      notes: ["Grey = complete case (main analysis); blue = multiple imputation and missing-indicator.",
+        "The missing-indicator method can give biased estimates when the variable with missing values is a confounder (as income is here); it is shown only as a sensitivity check. Multiple imputation assumes data are missing at random given the imputation model. Both keep the people with missing income, which is the main reason they differ from complete case."],
     }));
   };
   listeners.push(draw);
@@ -202,7 +206,7 @@ function specCurveSection(rows: GridRow[], meta: GridMeta, sel: { outcome: strin
   return sec;
 }
 
-function specFigure(all: GridRow[], meta: GridMeta, sel: { outcome: string; exposure: string; sample: string; blocks: string[] }) {
+export function specFigure(all: GridRow[], meta: GridMeta, sel: { outcome: string; exposure: string; sample: string; blocks: string[] }) {
   const rows = all.filter((r) => r.outcome === sel.outcome).slice().sort((a, b) => a.or - b.or);
   const data = rows.map((r, i) => ({ ...r, i, current: r.exposure === sel.exposure && r.sample === sel.sample && r.blocks === blocksKey(sel.blocks) }));
   const above = data.filter((d) => d.lcl > 1).length, below = data.filter((d) => d.ucl < 1).length;

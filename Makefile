@@ -21,6 +21,8 @@ data/derived/nhanes_pooled.rds: analysis/R/harmonize.R analysis/R/config.R data/
 analysis: harmonize   ## all estimates -> site/public/data/*.json
 	$(R) analysis/R/prevalence.R
 	$(R) analysis/R/models.R
+	$(R) analysis/R/mi.R
+	$(R) analysis/R/headline.R
 	$(R) analysis/R/evidence_export.R
 	$(R) analysis/R/policy.R
 	$(R) analysis/R/ai_predict.R
